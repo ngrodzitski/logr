@@ -70,7 +70,30 @@ ctest -T test
 
 ### Build on windows with Conan
 
-TODO
+Build with msvc16 (aka vs2019, aka vc142):
+
+```
+rd /s /q _msvc16
+mkdir _msvc16
+cd _msvc16
+
+REM Precompiled log4cplus in conan-center seems to be broken
+REM so we force its build `-b log4cplus`.
+conan install -s compiler="Visual Studio" ^
+              -s compiler.version=16 ^
+              -s build_type=Release ^
+              -s compiler.runtime=MD ^
+              --build missing ^
+              -b log4cplus ^
+              ..
+
+cmake -G "Visual Studio 16 2019" ^
+      -DCMAKE_BUILD_TYPE=Release ^
+      ..
+
+cmake --build . -j 4 --config Release
+ctest -T test
+```
 
 ## Using logr
 

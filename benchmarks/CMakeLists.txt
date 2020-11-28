@@ -2,7 +2,11 @@ set(logr_benchmark_prj logr_benchmark)
 
 project(${logr_benchmark_prj})
 
-set(logr_perf_flags -fno-omit-frame-pointer -g)
+if (WIN32)
+    set(logr_perf_flags)
+else ()
+    set(logr_perf_flags -fno-omit-frame-pointer -g)
+endif ()
 
 # ===============================================
 # spdlog
