@@ -10,7 +10,7 @@ class LogrConan(ConanFile):
     topics = ("logger", "development", "util", "utils")
 
     generators = "cmake_find_package"
-    exports_sources = "logr/*", "CMakeLists.txt", "cmake/*", "LICENSE.txt"
+    exports_sources = "logr/*", "CMakeLists.txt", "cmake-scripts/*", "LICENSE.txt"
 
     options = { 'spdlog_backend' : [True, False],
                 'glog_backend' : [True, False],
@@ -49,6 +49,7 @@ class LogrConan(ConanFile):
         cmake.definitions['LOGR_WITH_LOG4CPLUS_BACKEND'] = self.options.log4cplus_backend
         cmake.definitions['LOGR_BUILD_TESTS'] = False
         cmake.definitions['LOGR_BUILD_EXAMPLES'] = False
+        cmake.definitions['LOGR_BUILD_BENCHMARKS'] = False
         cmake.configure()
         return cmake
 

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/cpp_standard.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake-scripts/cpp_standard.cmake")
 
 message(STATUS "ENABLE C++17")
 cxx_17()
