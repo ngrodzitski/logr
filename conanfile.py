@@ -21,7 +21,7 @@ class LogrConan(ConanFile):
                         'log4cplus_backend': True }
 
     def requirements(self):
-        self.requires( "fmt/7.0.3" )
+        self.requires( "fmt/7.1.2" )
 
     def build_requirements(self):
         if self.options.spdlog_backend:
