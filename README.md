@@ -26,7 +26,7 @@ By itself logr is a header-only library. So talking about build we mean build te
 
 ### Prerequisetes
 
-* C++17 cmopiler.
+* C++17 compiler.
 * CMake.
 * Package manager ([conan](https://conan.io/), or [vcpkg](https://github.com/microsoft/vcpkg)).
 * Clone repository with submodules (don't forget `--recurse-submodules` option).
