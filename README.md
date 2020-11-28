@@ -18,7 +18,7 @@ This is a experimentsl project showing my approach to build a logger interface u
 
 This is not a self-contained logging library. Consider it as a "frontend" or a "wrapper" for whatever logging routine of your choice (which can be integrated as a backend). It can be used "as is" in your application or it can be adopted for your case or maybe you can just pick some ideas and came up with a better solution.
 
-Consider th following reasoning behing logr design [here](./design/on-logr-design.md).
+Consider the following reasoning behing logr design [here](./design/on-logr-design.md).
 
 ## Build
 
