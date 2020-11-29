@@ -10,6 +10,7 @@ class LogrConan(ConanFile):
     topics = ("logger", "development", "util", "utils")
 
     generators = "cmake_find_package"
+    settings = "os", "compiler", "build_type", "arch"
 
     # If CI wants test then consider building of examples and benchmarks
     # is a kind of test.
@@ -22,8 +23,8 @@ class LogrConan(ConanFile):
                 'log4cplus_backend' : [True, False] }
 
     default_options = { 'spdlog_backend': True,
-                        'glog_backend': False,
-                        'log4cplus_backend': False }
+                        'glog_backend': True,
+                        'log4cplus_backend': True }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -61,6 +62,8 @@ class LogrConan(ConanFile):
         cmake.definitions['LOGR_BUILD_TESTS'] = self.logr_build_test_and_others
         cmake.definitions['LOGR_BUILD_EXAMPLES'] = self.logr_build_test_and_others
         cmake.definitions['LOGR_BUILD_BENCHMARKS'] = self.logr_build_test_and_others
+
+        cmake.definitions['EXPLICIT_LIBCXX'] = self.settings.compiler.libcxx
         cmake.configure()
         return cmake
 
