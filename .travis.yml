@@ -9,7 +9,7 @@ env:
 
 branches:
   only:
-    - add-travis-ci
+    - main
 
 linux: &linux
    os: linux
