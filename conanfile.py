@@ -10,6 +10,11 @@ class LogrConan(ConanFile):
     topics = ("logger", "development", "util", "utils")
 
     generators = "cmake_find_package"
+
+    # If CI wants test then consider building of examples and benchmarks
+    # is a kind of test.
+    logr_build_test_and_others = tools.get_env("CONAN_RUN_TESTS", True)
+
     exports_sources = "logr/*", "CMakeLists.txt", "cmake-scripts/*", "LICENSE.txt"
 
     options = { 'spdlog_backend' : [True, False],
@@ -17,8 +22,13 @@ class LogrConan(ConanFile):
                 'log4cplus_backend' : [True, False] }
 
     default_options = { 'spdlog_backend': True,
-                        'glog_backend': True,
-                        'log4cplus_backend': True }
+                        'glog_backend': False,
+                        'log4cplus_backend': False }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.logr_build_test_and_others:
+            self.exports_sources += "tests/*", "examples/*", "benchmarks/*"
 
     def requirements(self):
         self.requires( "fmt/7.1.2" )
@@ -47,15 +57,21 @@ class LogrConan(ConanFile):
         cmake.definitions['LOGR_WITH_SPDLOG_BACKEND'] = self.options.spdlog_backend
         cmake.definitions['LOGR_WITH_GLOG_BACKEND'] = self.options.glog_backend
         cmake.definitions['LOGR_WITH_LOG4CPLUS_BACKEND'] = self.options.log4cplus_backend
-        cmake.definitions['LOGR_BUILD_TESTS'] = False
-        cmake.definitions['LOGR_BUILD_EXAMPLES'] = False
-        cmake.definitions['LOGR_BUILD_BENCHMARKS'] = False
+
+        cmake.definitions['LOGR_BUILD_TESTS'] = self.logr_build_test_and_others
+        cmake.definitions['LOGR_BUILD_EXAMPLES'] = self.logr_build_test_and_others
+        cmake.definitions['LOGR_BUILD_BENCHMARKS'] = self.logr_build_test_and_others
         cmake.configure()
         return cmake
 
     def package(self):
         cmake = self._configure_cmake()
         self.output.info(cmake.definitions)
+        if self.logr_build_test_and_others:
+            # If test are enabled build project and run tests.
+            cmake.build()
+            cmake.test(output_on_failure=True)
+
         cmake.install()
 
     def package_info(self):
