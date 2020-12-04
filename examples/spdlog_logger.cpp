@@ -20,9 +20,12 @@
 
 auto make_logger()
 {
+    auto sink = std::make_shared< spdlog::sinks::stdout_sink_st >();
+    sink->set_pattern("[%Y-%m-%d %T][%n][%l] %v [%g]");
+
     return logr::spdlog_logger_t<>{
         "console",
-        std::make_shared< spdlog::sinks::stdout_sink_st >(),
+        std::move( sink ),
         logr::log_message_level::trace
     };
 }
