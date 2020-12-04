@@ -68,6 +68,20 @@ cmake --build . -j $(nproc)
 ctest -T test
 ```
 
+### Build on linux with Conan dockers
+
+Using one of the dockers from [docker hub conanio](https://hub.docker.com/u/conanio):
+
+```bash
+docker run -ti --user=$(id -u):$(id -g) \
+           -v $(pwd):/sources \
+           -w /sources \
+           -e CONAN_USER_HOME=/sources/_conan \
+           conanio/gcc10 \
+           ./build-scripts/gcc_default.sh \
+               --run-ctest
+```
+
 ### Build on windows with Conan
 
 Build with msvc16 (aka vs2019, aka vc142):
