@@ -47,13 +47,17 @@ option(LOGR_INSTALL "Generate install target." ON)
 option(LOGR_BUILD_TESTS "Build tests." ON)
 option(LOGR_BUILD_EXAMPLES "Build examples." ON)
 option(LOGR_BUILD_BENCHMARKS "Build benchmarks." ON)
+
+# It doesn't work well for all cmake generators, so it is disabled by default.
 option(LOGR_PRJ_ROOT_LENGTH_HINT_ENABLED
-       "Enable a hint to cut prj-root from sources path in logging ."
-       ON)
+       "Enable a hint to cut prj-root from sources path in logging."
+       OFF)
+
 option(LOGR_PRJ_COLLAPSE_SRC_LOCATION_ENABLED
        "Enable a hint to collapse all src location (make them unused)."
        OFF)
 
+# Backends.
 option(LOGR_WITH_SPDLOG_BACKEND "Provide logr with spdlog backend" ON)
 option(LOGR_WITH_GLOG_BACKEND "Provide logr with glog backend" ON)
 option(LOGR_WITH_LOG4CPLUS_BACKEND "Provide logr with log4cplus backend" ON)
@@ -78,9 +82,16 @@ if (LOGR_PRJ_COLLAPSE_SRC_LOCATION_ENABLED)
     add_compile_definitions("LOGR_PRJ_COLLAPSE_SRC_LOCATION")
 else ()
     if (LOGR_PRJ_ROOT_LENGTH_HINT_ENABLED)
-        string(LENGTH "${CMAKE_SOURCE_DIR}/" project_root_path_len)
-
-        add_compile_definitions("LOGR_PRJ_ROOT_LENGTH_HINT=${project_root_path_len}")
+        if( NOT ${CMAKE_GENERATOR} STREQUAL "Ninja" )
+            # Ninja uses relative path for sources.
+            string(LENGTH "${CMAKE_SOURCE_DIR}/" project_root_path_len)
+            add_compile_definitions("LOGR_PRJ_ROOT_LENGTH_HINT=${project_root_path_len}")
+        else ()
+            # Ninja uses a relative path, so LOGR_PRJ_ROOT_LENGTH_HINT must be ignored.
+            # For a target project a corresponding macro definition
+            # can be adjusted with knowing the "head" to cut from sources.
+            message(WARNING "LOGR_PRJ_ROOT_LENGTH_HINT is ignored for Ninja build")
+        endif()
     endif ()
 endif ()
 # ------------------------------------------------------------------------------
