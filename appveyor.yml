@@ -7,6 +7,8 @@ environment:
     CONAN_USERNAME: "ngrodzitski"
     CONAN_LOGIN_USERNAME: "ngrodzitski"
     CONAN_CHANNEL: "testing"
+    CONAN_BUILD_POLICY: "missing"
+    CONAN_RUN_TESTS: "True"
 
     matrix:
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
