@@ -68,6 +68,10 @@ class LogrConan(ConanFile):
         if self.settings.compiler == "gcc" or self.settings.compiler == "clang":
             cmake.definitions['EXPLICIT_LIBCXX'] = self.settings.compiler.libcxx
 
+        if self.settings.compiler == "Visual Studio":
+            rt = self.settings.compiler.runtime
+            cmake.definitions['EXPLICIT_STATIC_RUNTIME'] = (rt == "MT" or rt == "MTd")
+
         cmake.configure()
         return cmake
 

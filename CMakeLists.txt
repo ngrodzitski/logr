@@ -6,6 +6,7 @@ set(logr_root_prj logr_root)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/cpp_standard.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/libcxx.cmake")
+include( "${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/static_runtime.cmake" )
 
 message(STATUS "ENABLE C++17")
 cxx_17()
@@ -65,6 +66,7 @@ option(LOGR_WITH_LOG4CPLUS_BACKEND "Provide logr with log4cplus backend" ON)
 
 project(${logr_root_prj} CXX)
 handle_explicit_libcxx_if_necessary()
+handle_explicit_static_runtime_if_necessary()
 
 # ------------------------------------------------------------------------------
 # Various helpers:
