@@ -65,7 +65,9 @@ class LogrConan(ConanFile):
         cmake.definitions['LOGR_BUILD_EXAMPLES'] = self.logr_build_test_and_others
         cmake.definitions['LOGR_BUILD_BENCHMARKS'] = self.logr_build_test_and_others
 
-        cmake.definitions['EXPLICIT_LIBCXX'] = self.settings.compiler.libcxx
+        if self.settings.msvc == "gcc" or self.settings.msvc == "clang":
+            cmake.definitions['EXPLICIT_LIBCXX'] = self.settings.compiler.libcxx
+
         cmake.configure()
         return cmake
 
