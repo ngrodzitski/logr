@@ -12,6 +12,8 @@ class LogrConan(ConanFile):
     generators = "cmake_find_package"
     settings = "os", "compiler", "build_type", "arch"
 
+    build_policy = "missing"
+
     # If CI wants test then consider building of examples and benchmarks
     # is a kind of test.
     logr_build_test_and_others = tools.get_env("CONAN_RUN_TESTS", True)
@@ -63,7 +65,13 @@ class LogrConan(ConanFile):
         cmake.definitions['LOGR_BUILD_EXAMPLES'] = self.logr_build_test_and_others
         cmake.definitions['LOGR_BUILD_BENCHMARKS'] = self.logr_build_test_and_others
 
-        cmake.definitions['EXPLICIT_LIBCXX'] = self.settings.compiler.libcxx
+        if self.settings.compiler == "gcc" or self.settings.compiler == "clang":
+            cmake.definitions['EXPLICIT_LIBCXX'] = self.settings.compiler.libcxx
+
+        if self.settings.compiler == "Visual Studio":
+            rt = self.settings.compiler.runtime
+            cmake.definitions['EXPLICIT_STATIC_RUNTIME'] = (rt == "MT" or rt == "MTd")
+
         cmake.configure()
         return cmake
 

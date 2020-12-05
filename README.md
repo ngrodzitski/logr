@@ -87,9 +87,9 @@ docker run -ti --user=$(id -u):$(id -g) \
 Build with msvc16 (aka vs2019, aka vc142):
 
 ```
-rd /s /q _msvc16
-mkdir _msvc16
-cd _msvc16
+rd /s /q _msvc16_conan
+mkdir _msvc16_conan
+cd _msvc16_conan
 
 REM Precompiled log4cplus in conan-center seems to be broken
 REM so we force its build `-b log4cplus`.
@@ -104,6 +104,21 @@ conan install -s compiler="Visual Studio" ^
 cmake -G "Visual Studio 16 2019" ^
       -DCMAKE_BUILD_TYPE=Release ^
       ..
+
+cmake --build . -j 4 --config Release
+ctest -T test
+```
+## Build with Vcpkg
+
+To build tests, examples and benchmarks the following packages should be installed: glog, spdlog, log4cplus, gtest, benchmark.
+
+Having all dependencies in place one can build the project using the following commands:
+
+```bash
+mkdir _vcpkg_build
+cd _vcpkg_build
+
+cmake -DCMAKE_BUILD_TYPE=Release -DLOGR_PKG_PROVIDER=vcpkg  -DCMAKE_TOOLCHAIN_FILE=PATH_TO/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 
 cmake --build . -j 4 --config Release
 ctest -T test
