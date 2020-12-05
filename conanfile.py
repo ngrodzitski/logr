@@ -12,6 +12,8 @@ class LogrConan(ConanFile):
     generators = "cmake_find_package"
     settings = "os", "compiler", "build_type", "arch"
 
+    build_policy="missing"
+
     # If CI wants test then consider building of examples and benchmarks
     # is a kind of test.
     logr_build_test_and_others = tools.get_env("CONAN_RUN_TESTS", True)
