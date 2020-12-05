@@ -16,6 +16,8 @@ environment:
 
 
 install:
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - git submodule update --init --recursive
   - set PATH=%PYTHON_HOME%;%PYTHON_HOME%/Scripts/;%PATH%
   - pip.exe install conan --upgrade
   - pip.exe install conan_package_tools
