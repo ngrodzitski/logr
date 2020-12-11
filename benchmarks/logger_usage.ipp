@@ -54,19 +54,19 @@ void do_some_logging_logr( Logger & logger, int x, int y )
         logger.info( []() { return "Hello World! [cb]"; } );
 
         logger.info( [&]( auto & out ) {
-            fmt::format_to( out, "X is {}! and Y is {}", x, y );
+            format_to( out, "X is {}! and Y is {}", x, y );
         } );
 
         logger.info( [&]( auto & out ) {
-            fmt::format_to( out, "Y is {}! and X is {}", y, x );
+            format_to( out, "Y is {}! and X is {}", y, x );
         } );
 
         logger.info( [&x]( auto & out ) {
-            fmt::format_to( out, "X is {}! and Y is skipped", x );
+            format_to( out, "X is {}! and Y is skipped", x );
         } );
 
         logger.info( [&y]( auto & out ) {
-            fmt::format_to( out, "Y is {}! and X is skipped", y );
+            format_to( out, "Y is {}! and X is skipped", y );
         } );
     }
     else
@@ -107,19 +107,19 @@ void do_some_logging_logr( Logger & logger, int x, int y )
         logger.info( LOGR_SRC_LOCATION, []() { return "Hello World! [cb]"; } );
 
         logger.info( LOGR_SRC_LOCATION, [&]( auto & out ) {
-            fmt::format_to( out, "X is {}! and Y is {}", x, y );
+            format_to( out, "X is {}! and Y is {}", x, y );
         } );
 
         logger.info( LOGR_SRC_LOCATION, [&]( auto & out ) {
-            fmt::format_to( out, "Y is {}! and X is {}", y, x );
+            format_to( out, "Y is {}! and X is {}", y, x );
         } );
 
         logger.info( LOGR_SRC_LOCATION, [&x]( auto & out ) {
-            fmt::format_to( out, "X is {}! and Y is skipped", x );
+            format_to( out, "X is {}! and Y is skipped", x );
         } );
 
         logger.info( LOGR_SRC_LOCATION, [&y]( auto & out ) {
-            fmt::format_to( out, "Y is {}! and X is skipped", y );
+            format_to( out, "Y is {}! and X is skipped", y );
         } );
     }
 }

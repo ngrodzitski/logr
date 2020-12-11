@@ -23,12 +23,12 @@ void use_logger( Logger & logger )
     logger.trace( []() { return "Hello World! [cb]"; } );
     logger.trace( LOGR_SRC_LOCATION, []() { return "Hello World! [cb]"; } );
 
-    logger.trace( []( auto & out ) {
-        fmt::format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    logger.trace( []( auto out ) {
+        format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
 
-    logger.trace( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    logger.trace( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
 
     logger.debug( "Hello World! [raw message]" );
@@ -37,12 +37,12 @@ void use_logger( Logger & logger )
     logger.debug( []() { return "Hello World! [cb]"; } );
     logger.debug( LOGR_SRC_LOCATION, []() { return "Hello World! [cb]"; } );
 
-    logger.debug( []( auto & out ) {
-        fmt::format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    logger.debug( []( auto out ) {
+        format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
 
-    logger.debug( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    logger.debug( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
 
     logger.info( "Hello World! [raw message]" );
@@ -51,12 +51,12 @@ void use_logger( Logger & logger )
     logger.info( []() { return "Hello World! [cb]"; } );
     logger.info( LOGR_SRC_LOCATION, []() { return "Hello World! [cb]"; } );
 
-    logger.info( []( auto & out ) {
-        fmt::format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    logger.info( []( auto out ) {
+        format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
 
-    logger.info( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    logger.info( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
 
     logger.warn( "Hello World! [raw message]" );
@@ -65,12 +65,12 @@ void use_logger( Logger & logger )
     logger.warn( []() { return "Hello World! [cb]"; } );
     logger.warn( LOGR_SRC_LOCATION, []() { return "Hello World! [cb]"; } );
 
-    logger.warn( []( auto & out ) {
-        fmt::format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    logger.warn( []( auto out ) {
+        format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
 
-    logger.warn( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    logger.warn( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
 
     logger.error( "Hello World! [raw message]" );
@@ -79,12 +79,12 @@ void use_logger( Logger & logger )
     logger.error( []() { return "Hello World! [cb]"; } );
     logger.error( LOGR_SRC_LOCATION, []() { return "Hello World! [cb]"; } );
 
-    logger.error( []( auto & out ) {
-        fmt::format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    logger.error( []( auto out ) {
+        format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
 
-    logger.error( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    logger.error( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
 
     logger.critical( "Hello World! [raw message]" );
@@ -93,12 +93,12 @@ void use_logger( Logger & logger )
     logger.critical( []() { return "Hello World! [cb]"; } );
     logger.critical( LOGR_SRC_LOCATION, []() { return "Hello World! [cb]"; } );
 
-    logger.critical( []( auto & out ) {
-        fmt::format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    logger.critical( []( auto out ) {
+        format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
 
-    logger.critical( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    logger.critical( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
 
     logger.flush();
@@ -118,12 +118,12 @@ void use_wlogger( Logger & logger )
     logger.trace( []() { return L"Привет Мир! [cb]"; } );
     logger.trace( LOGR_SRC_LOCATION, []() { return L"Привет Мир! [cb]"; } );
 
-    logger.trace( []( auto & out ) {
-        fmt::format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
+    logger.trace( []( auto out ) {
+        format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
 
-    logger.trace( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
+    logger.trace( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
 
     logger.debug( L"Привет Мир! [raw message]" );
@@ -132,12 +132,12 @@ void use_wlogger( Logger & logger )
     logger.debug( []() { return L"Привет Мир! [cb]"; } );
     logger.debug( LOGR_SRC_LOCATION, []() { return L"Привет Мир! [cb]"; } );
 
-    logger.debug( []( auto & out ) {
-        fmt::format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
+    logger.debug( []( auto out ) {
+        format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
 
-    logger.debug( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
+    logger.debug( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
 
     logger.info( L"Привет Мир! [raw message]" );
@@ -146,12 +146,12 @@ void use_wlogger( Logger & logger )
     logger.info( []() { return L"Привет Мир! [cb]"; } );
     logger.info( LOGR_SRC_LOCATION, []() { return L"Привет Мир! [cb]"; } );
 
-    logger.info( []( auto & out ) {
-        fmt::format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
+    logger.info( []( auto out ) {
+        format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
 
-    logger.info( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
+    logger.info( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
 
     logger.warn( L"Привет Мир! [raw message]" );
@@ -160,12 +160,12 @@ void use_wlogger( Logger & logger )
     logger.warn( []() { return L"Привет Мир! [cb]"; } );
     logger.warn( LOGR_SRC_LOCATION, []() { return L"Привет Мир! [cb]"; } );
 
-    logger.warn( []( auto & out ) {
-        fmt::format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
+    logger.warn( []( auto out ) {
+        format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
 
-    logger.warn( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
+    logger.warn( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
 
     logger.error( L"Привет Мир! [raw message]" );
@@ -174,12 +174,12 @@ void use_wlogger( Logger & logger )
     logger.error( []() { return L"Привет Мир! [cb]"; } );
     logger.error( LOGR_SRC_LOCATION, []() { return L"Привет Мир! [cb]"; } );
 
-    logger.error( []( auto & out ) {
-        fmt::format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
+    logger.error( []( auto out ) {
+        format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
 
-    logger.error( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
+    logger.error( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
 
     logger.critical( L"Привет Мир! [raw message]" );
@@ -188,12 +188,12 @@ void use_wlogger( Logger & logger )
     logger.critical( []() { return L"Привет Мир! [cb]"; } );
     logger.critical( LOGR_SRC_LOCATION, []() { return L"Привет Мир! [cb]"; } );
 
-    logger.critical( []( auto & out ) {
-        fmt::format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
+    logger.critical( []( auto out ) {
+        format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
 
-    logger.critical( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
+    logger.critical( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
 
     logger.flush();

@@ -52,6 +52,10 @@ public:
     using message_buffer_t =
         fmt::basic_memory_buffer< CharT, Inline_Size, Allocator >;
 
+    /**
+     * @brief Get an output buffer.
+     * @return A reference to a lower level buffer.
+     */
     message_buffer_t & msg_buffer() noexcept { return m_message; };
 
 private:
@@ -59,6 +63,39 @@ private:
 };
 
 } /* namespace details */
+
+template < typename Buffer >
+class write_to_ouput_wrapper_t
+{
+public:
+    explicit write_to_ouput_wrapper_t( Buffer & buf ) : m_buffer{ buf }
+    {
+        using self_type_t = write_to_ouput_wrapper_t<Buffer>;
+        static_assert( std::is_trivially_copyable_v< self_type_t >);
+    }
+
+    write_to_ouput_wrapper_t( const write_to_ouput_wrapper_t & ) = default;
+
+    Buffer & buf() noexcept
+    {
+        return m_buffer;
+    }
+
+    template< typename ... Args >
+    auto format_to( Args &&... args )
+    {
+        return fmt::format_to( buf(), std::forward< Args >( args )... );
+    }
+
+private:
+    Buffer & m_buffer;
+};
+
+template < typename Buffer, typename ... Args  >
+auto format_to( write_to_ouput_wrapper_t< Buffer > out, Args && ... args )
+{
+    return out.format_to( std::forward< Args >( args )... );
+}
 
 //
 // log_level
@@ -309,7 +346,11 @@ public:
 
     template < typename Message_Builder >
     static inline constexpr bool is_by_writeto_msg_producer_v =
-        std::is_invocable< Message_Builder, message_buffer_t & >::value;
+        std::is_invocable_v< Message_Builder, write_to_ouput_wrapper_t<message_buffer_t> >
+        || std::is_invocable_v< Message_Builder, write_to_ouput_wrapper_t<message_buffer_t>& >;
+        // std::is_invocable< Message_Builder, message_buffer_t >::value
+        // ||
+        // std::is_invocable< Message_Builder, message_buffer_t& >::value;
 
     template < typename Message_Builder >
     static inline constexpr bool valid_message_producer_v =
@@ -391,7 +432,11 @@ public:
                                "unless a new message producer types are added" );
 
                 message_container_t msg;
-                msg_builder( msg.msg_buffer() );
+
+                {
+                    write_to_ouput_wrapper_t out{msg.msg_buffer()};
+                    msg_builder( out );
+                }
 
                 // Dispatch message as a string view.
                 log_message_level_x< Level >( msg.make_view() );
@@ -418,7 +463,12 @@ public:
                                "unless a new message producer types are added" );
 
                 message_container_t msg;
-                msg_builder( msg.msg_buffer() );
+
+                {
+                    write_to_ouput_wrapper_t out{msg.msg_buffer()};
+                    msg_builder( out );
+                }
+                // msg_builder( msg.msg_buffer() );
 
                 // Dispatch message as a string view.
                 log_message_level_x< Level >( src_location, msg.make_view() );

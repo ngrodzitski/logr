@@ -42,12 +42,12 @@ std::tuple< bool, bool, bool, bool, bool, bool > do_log_for_all_log_levels(
 
     logger.trace( [&]( auto & out ) {
         trace_cb_was_called = true;
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.trace( LOGR_SRC_LOCATION, [&]( auto & out ) {
         trace_cb_was_called = true;
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.debug( [&]() {
@@ -61,12 +61,12 @@ std::tuple< bool, bool, bool, bool, bool, bool > do_log_for_all_log_levels(
 
     logger.debug( [&]( auto & out ) {
         debug_cb_was_called = true;
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.debug( LOGR_SRC_LOCATION, [&]( auto & out ) {
         debug_cb_was_called = true;
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.info( [&]() {
@@ -80,12 +80,12 @@ std::tuple< bool, bool, bool, bool, bool, bool > do_log_for_all_log_levels(
 
     logger.info( [&]( auto & out ) {
         info_cb_was_called = true;
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.info( LOGR_SRC_LOCATION, [&]( auto & out ) {
         info_cb_was_called = true;
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.warn( [&]() {
@@ -99,12 +99,12 @@ std::tuple< bool, bool, bool, bool, bool, bool > do_log_for_all_log_levels(
 
     logger.warn( [&]( auto & out ) {
         warn_cb_was_called = true;
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.warn( LOGR_SRC_LOCATION, [&]( auto & out ) {
         warn_cb_was_called = true;
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.error( [&]() {
@@ -118,12 +118,12 @@ std::tuple< bool, bool, bool, bool, bool, bool > do_log_for_all_log_levels(
 
     logger.error( [&]( auto & out ) {
         error_cb_was_called = true;
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.error( LOGR_SRC_LOCATION, [&]( auto & out ) {
         error_cb_was_called = true;
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.critical( [&]() {
@@ -137,12 +137,12 @@ std::tuple< bool, bool, bool, bool, bool, bool > do_log_for_all_log_levels(
 
     logger.critical( [&]( auto & out ) {
         critical_cb_was_called = true;
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.critical( LOGR_SRC_LOCATION, [&]( auto & out ) {
         critical_cb_was_called = true;
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     return std::tie( trace_cb_was_called,

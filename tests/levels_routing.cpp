@@ -30,11 +30,11 @@ TEST( LogrLevelsRouting, TraceMessages )  // NOLINT
     logger.trace( LOGR_SRC_LOCATION, []() { return "test [cb]"; } );
 
     logger.trace( []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.trace( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 }
 
@@ -57,11 +57,11 @@ TEST( LogrLevelsRouting, DebugMessages )  // NOLINT
     logger.debug( LOGR_SRC_LOCATION, []() { return "test [cb]"; } );
 
     logger.debug( []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.debug( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 }
 
@@ -84,11 +84,11 @@ TEST( LogrLevelsRouting, InfoMessages )  // NOLINT
     logger.info( LOGR_SRC_LOCATION, []() { return "test [cb]"; } );
 
     logger.info( []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.info( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 }
 
@@ -111,11 +111,11 @@ TEST( LogrLevelsRouting, WarnMessages )  // NOLINT
     logger.warn( LOGR_SRC_LOCATION, []() { return "test [cb]"; } );
 
     logger.warn( []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.warn( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 }
 
@@ -138,11 +138,11 @@ TEST( LogrLevelsRouting, ErrorMessages )  // NOLINT
     logger.error( LOGR_SRC_LOCATION, []() { return "test [cb]"; } );
 
     logger.error( []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.error( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 }
 
@@ -165,11 +165,11 @@ TEST( LogrLevelsRouting, CriticalMessages )  // NOLINT
     logger.critical( LOGR_SRC_LOCATION, []() { return "test [cb]"; } );
 
     logger.critical( []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.critical( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 }
 
