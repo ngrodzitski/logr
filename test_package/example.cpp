@@ -9,10 +9,10 @@ int main()
                                      logr::log_message_level::trace };
 
     logger.info( []( auto & out ){
-        fmt::format_to( out,
-                        "Welcome to logr (v{}.{}.{}) provided with conan!",
-                        LOGR_VERSION_MAJOR,
-                        LOGR_VERSION_MINOR,
-                        LOGR_VERSION_PATCH );
+        format_to( out,
+                   "Welcome to logr (v{}.{}.{}) provided with conan!",
+                   LOGR_VERSION_MAJOR,
+                   LOGR_VERSION_MINOR,
+                   LOGR_VERSION_PATCH );
     } );
 }
