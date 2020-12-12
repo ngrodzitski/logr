@@ -11,7 +11,7 @@
 // Spdlog uses fmt either, and leverages its mem-buffer
 // So for fair compitition the same buffer size should be used.
 // https://github.com/gabime/spdlog/blob/4a9ccf7e38e257feecce0c579a782741254eaeef/include/spdlog/common.h#L103
-#define SPD_LOG_FMT_MEMBUFFER_SIZE 250
+constexpr std::size_t spd_log_fmt_membuffer_size = 250UL;
 
 // Anoother point for fair comparison is using spdlog without exceptions.
 // That is provided by `conanfile`.
@@ -79,7 +79,7 @@ void bench_spdlog_logr( benchmark::State & state )
     }
 }
 
-using spdlog_logr_t = logr::spdlog_logger_t< SPD_LOG_FMT_MEMBUFFER_SIZE >;
+using spdlog_logr_t = logr::spdlog_logger_t< spd_log_fmt_membuffer_size >;
 
 using spdlog_logr_devirt_fixup_t = logr::devirt_fixup_t< spdlog_logr_t >;
 
