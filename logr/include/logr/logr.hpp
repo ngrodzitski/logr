@@ -76,10 +76,10 @@ private:
  *
  * @code{.cpp}
  * logger.info( [&]( auto out ){
- *   // By value
+ *   // By value...
  * } );
  * logger.info( [&]( auto & out ){
- *   // By reference
+ *   // By reference...
  * } );
  * @endcode
  */
