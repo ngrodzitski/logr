@@ -10,6 +10,7 @@ env:
 branches:
   only:
     - main
+    - dev-writeto-msg-builder-wrapped-out
 
 linux: &linux
    os: linux

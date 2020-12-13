@@ -16,7 +16,7 @@ class LogrConan(ConanFile):
 
     # If CI wants test then consider building of examples and benchmarks
     # is a kind of test.
-    logr_build_test_and_others = tools.get_env("CONAN_RUN_TESTS", True)
+    logr_build_test_and_others = tools.get_env("CONAN_RUN_TESTS", False)
 
     exports_sources = "logr/*", "CMakeLists.txt", "cmake-scripts/*", "LICENSE.txt"
 
@@ -84,6 +84,9 @@ class LogrConan(ConanFile):
             cmake.test(output_on_failure=True)
 
         cmake.install()
+
+    def package_id(self):
+        self.info.header_only()
 
     def package_info(self):
         self.info.header_only()

@@ -28,11 +28,11 @@ void do_log_for_all_log_levels( Logger & logger )
     logger.trace( LOGR_SRC_LOCATION, []() { return "test [cb]"; } );
 
     logger.trace( []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.trace( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.debug( "test [raw message]" );
@@ -42,11 +42,11 @@ void do_log_for_all_log_levels( Logger & logger )
     logger.debug( LOGR_SRC_LOCATION, []() { return "test [cb]"; } );
 
     logger.debug( []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.debug( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.info( "test [raw message]" );
@@ -56,11 +56,11 @@ void do_log_for_all_log_levels( Logger & logger )
     logger.info( LOGR_SRC_LOCATION, []() { return "test [cb]"; } );
 
     logger.info( []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.info( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.warn( "test [raw message]" );
@@ -70,11 +70,11 @@ void do_log_for_all_log_levels( Logger & logger )
     logger.warn( LOGR_SRC_LOCATION, []() { return "test [cb]"; } );
 
     logger.warn( []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.warn( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.error( "test [raw message]" );
@@ -84,11 +84,11 @@ void do_log_for_all_log_levels( Logger & logger )
     logger.error( LOGR_SRC_LOCATION, []() { return "test [cb]"; } );
 
     logger.error( []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.error( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.critical( "test [raw message]" );
@@ -98,11 +98,11 @@ void do_log_for_all_log_levels( Logger & logger )
     logger.critical( LOGR_SRC_LOCATION, []() { return "test [cb]"; } );
 
     logger.critical( []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
     logger.critical( LOGR_SRC_LOCATION, []( auto & out ) {
-        fmt::format_to( out, "{} [{}]", "test", "cb with explicit out" );
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 }
 

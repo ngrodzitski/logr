@@ -52,6 +52,10 @@ public:
     using message_buffer_t =
         fmt::basic_memory_buffer< CharT, Inline_Size, Allocator >;
 
+    /**
+     * @brief Get an output buffer.
+     * @return A reference to a lower level buffer.
+     */
     message_buffer_t & msg_buffer() noexcept { return m_message; };
 
 private:
@@ -59,6 +63,76 @@ private:
 };
 
 } /* namespace details */
+
+//
+// write_to_ouput_wrapper_t
+//
+
+/**
+ * @brief A wrapper for output parameter passed to `write-to` callbacks.
+ *
+ * The purpose of the wrapper is to allow callbacks receiving
+ * `out` parameter either by value or by reference.
+ *
+ * @code{.cpp}
+ * logger.info( [&]( auto out ){
+ *   // By value...
+ * } );
+ * logger.info( [&]( auto & out ){
+ *   // By reference...
+ * } );
+ * @endcode
+ */
+template < typename Buffer >
+class write_to_ouput_wrapper_t
+{
+public:
+    /**
+     * @brief Init with a given buffer.
+     */
+    write_to_ouput_wrapper_t( Buffer & buf ) noexcept
+        : m_buffer{ buf }
+    {
+        using self_type_t = write_to_ouput_wrapper_t< Buffer >;
+        static_assert( std::is_trivially_copyable_v< self_type_t > );
+    }
+
+    /**
+     * @brief Get the fmt-acceptable buffer.
+     *
+     * @return A reference to fmt basic memory buffer.
+     */
+    Buffer & buf() noexcept { return m_buffer; }
+
+    /**
+     * @brief a shortcut function to perform message formating to buffer.
+     */
+    template < typename... Args >
+    auto format_to( Args &&... args )
+    {
+        return ::fmt::format_to( buf(), std::forward< Args >( args )... );
+    }
+
+private:
+    Buffer & m_buffer;
+};
+
+/**
+ * @brief A helper free-function to start formatting message to buffer.
+ *
+ * ADL based shortcut function to allow write-to message builder
+ * to write in the the following style:
+ * @code{.cpp}
+ * logger.info( [&]( auto out ){
+ *   format_to( out, "fmt str", x, y, z );
+ * } );
+ * @endcode
+ */
+template < typename Buffer, typename... Args >
+auto format_to( write_to_ouput_wrapper_t< Buffer > out, Args &&... args )
+{
+    return ::fmt::format_to( out.buf(), std::forward< Args >( args )... );
+}
 
 //
 // log_level
@@ -309,7 +383,10 @@ public:
 
     template < typename Message_Builder >
     static inline constexpr bool is_by_writeto_msg_producer_v =
-        std::is_invocable< Message_Builder, message_buffer_t & >::value;
+        std::is_invocable_v<
+            Message_Builder,
+            write_to_ouput_wrapper_t<
+                message_buffer_t > > || std::is_invocable_v< Message_Builder, write_to_ouput_wrapper_t< message_buffer_t > & >;
 
     template < typename Message_Builder >
     static inline constexpr bool valid_message_producer_v =
@@ -391,7 +468,11 @@ public:
                                "unless a new message producer types are added" );
 
                 message_container_t msg;
-                msg_builder( msg.msg_buffer() );
+
+                {
+                    write_to_ouput_wrapper_t out{ msg.msg_buffer() };
+                    msg_builder( out );
+                }
 
                 // Dispatch message as a string view.
                 log_message_level_x< Level >( msg.make_view() );
@@ -418,7 +499,12 @@ public:
                                "unless a new message producer types are added" );
 
                 message_container_t msg;
-                msg_builder( msg.msg_buffer() );
+
+                {
+                    write_to_ouput_wrapper_t out{ msg.msg_buffer() };
+                    msg_builder( out );
+                }
+                // msg_builder( msg.msg_buffer() );
 
                 // Dispatch message as a string view.
                 log_message_level_x< Level >( src_location, msg.make_view() );
