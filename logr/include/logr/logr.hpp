@@ -212,7 +212,7 @@ struct no_src_location_t
  *       use it as a private base class explicitly
  *       moving access functions to public part of a base class.
  */
-class st_log_level_driver_t
+class st_log_level_driver_t final
 {
 public:
     explicit st_log_level_driver_t( log_message_level level ) noexcept
@@ -262,7 +262,7 @@ private:
  */
 template < std::memory_order Load_MO  = std::memory_order_relaxed,
            std::memory_order Store_MO = std::memory_order_relaxed >
-class mt_log_level_driver_t
+class mt_log_level_driver_t final
 {
 public:
     explicit mt_log_level_driver_t( log_message_level level ) noexcept
@@ -303,10 +303,11 @@ private:
 /**
  * @brief Logger traits.
  *
- * @tparam Inline_Size The size of stack buffer used for messages.
- * @tparam CharT       Cheracter type.
- * @tparam Allocator   Allocator used for buffer
- *                     (in case stack buffer is not enough).
+ * @tparam Inline_Size       The size of stack buffer used for messages.
+ * @tparam CharT             Cheracter type.
+ * @tparam Allocator         Allocator used for buffer
+ *                           (in case stack buffer is not enough).
+ * @tparam Log_Level_Driver  Log level control block.
  */
 template < std::size_t Inline_Size,
            typename CharT            = char,
@@ -359,17 +360,23 @@ struct basic_logger_traits_t
  *       as given here in this class `message` parameter should be const.
  *       it is not the case, because descendants might be interested in
  *       modifying message before delegating.
+ *
+ * @tparam Inline_Size       The size of stack buffer used for messages.
+ * @tparam CharT             Cheracter type.
+ * @tparam Allocator         Allocator used for buffer
+ *                           (in case stack buffer is not enough).
+ * @tparam Log_Level_Driver  Log level control block.
  */
-// template < std::size_t Inline_Size,
-//            typename CharT     = char,
-//            typename Allocator = std::allocator< CharT > >
-template < typename Logger_Traits >
-class basic_logger_t : private Logger_Traits::log_level_driver_t
+template < std::size_t Inline_Size,
+           typename CharT            = char,
+           typename Allocator        = std::allocator< CharT >,
+           typename Log_Level_Driver = st_log_level_driver_t >
+class basic_logger_type_t
 {
 public:
-    static constexpr auto inline_size = Logger_Traits::inline_size;
-    using char_t                      = typename Logger_Traits::char_t;
-    using allocator_t                 = typename Logger_Traits::allocator_t;
+    static constexpr auto inline_size = Inline_Size;
+    using char_t                      = CharT;
+    using allocator_t                 = Allocator;
 
     using message_container_t = details::
         basic_small_message_container_t< inline_size, char_t, allocator_t >;
@@ -393,7 +400,15 @@ public:
         is_by_return_msg_producer_v<
             Message_Builder > || is_by_writeto_msg_producer_v< Message_Builder >;
 
-    using log_level_driver_t = typename Logger_Traits::log_level_driver_t;
+    using log_level_driver_t = Log_Level_Driver;
+
+    /**
+     * @brief A very base class of logger.
+     */
+    using root_logger_type_t = basic_logger_type_t< inline_size,
+                                                    char_t,
+                                                    allocator_t,
+                                                    log_level_driver_t >;
 
 public:
     /**
@@ -402,9 +417,10 @@ public:
      * @param  level  Logging messages level.
      * @param  alloc  Allocator used for message buffer.
      */
-    explicit basic_logger_t( log_message_level level,
-                             const allocator_t & alloc = allocator_t() ) noexcept
-        : log_level_driver_t{ level }
+    explicit basic_logger_type_t(
+        log_message_level level,
+        const allocator_t & alloc = allocator_t() ) noexcept
+        : m_log_level{ level }
         , m_alloc{ alloc }
     {
     }
@@ -414,15 +430,30 @@ public:
      *
      * @param  alloc  Allocator used for message buffer.
      */
-    explicit basic_logger_t( const allocator_t & alloc = allocator_t() ) noexcept
-        : basic_logger_t{ log_message_level::info, alloc }
+    explicit basic_logger_type_t(
+        const allocator_t & alloc = allocator_t() ) noexcept
+        : basic_logger_type_t{ log_message_level::info, alloc }
     {
     }
 
-    // Make log level driver available:
-    using log_level_driver_t::log_level;
+    /**
+     * @brief Get currently enabled log level.
+     *
+     * @return Log level set for logger.
+     */
+    auto log_level() const noexcept { return m_log_level.log_level(); }
 
-    virtual ~basic_logger_t() = default;
+    /**
+     * @brief Set log level for logger.
+     *
+     * @param new_log_level  New log level for logger.
+     */
+    void log_level( log_message_level new_log_level ) noexcept
+    {
+        m_log_level.log_level( new_log_level );
+    }
+
+    virtual ~basic_logger_type_t() = default;
 
 #if !defined( LOGR_CLIENT_ZERO_LOGGER )
 
@@ -914,11 +945,27 @@ protected:
     }
 
 private:
+    log_level_driver_t m_log_level;
     /**
      * @brief Allocator for this logger instance.
      */
     const allocator_t m_alloc;
 };
+
+/**
+ * @brief A traits alias for basic logger.
+ *
+ * Having a root logger type a template dependent on traits class
+ * produces a distinct type for each traits class,
+ * That prevents having the the same base logger for different
+ * implementations.
+ */
+template < typename Logger_Traits >
+using basic_logger_t =
+    basic_logger_type_t< Logger_Traits::inline_size,
+                         typename Logger_Traits::char_t,
+                         typename Logger_Traits::allocator_t,
+                         typename Logger_Traits::log_level_driver_t >;
 
 //
 // devirt_fixup_t

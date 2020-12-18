@@ -7,12 +7,6 @@ env:
      - CONAN_BUILD_POLICY=missing
      - CONAN_RUN_TESTS=True
 
-branches:
-  only:
-    - main
-    - dev-writeto-msg-builder-wrapped-out
-    - dev-conan-pkg-improvements
-
 linux: &linux
    os: linux
    dist: xenial
