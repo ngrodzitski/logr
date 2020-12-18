@@ -37,7 +37,7 @@ if ("${logr_pkg_provider_lowercase}" STREQUAL "conan")
     if (LOGR_CONAN_PACKAGING)
         # Using conan "cmake" generator for packaging.
         # https://docs.conan.io/en/latest/integrations/build_system/cmake/cmake_generator.html#cmake-generator
-        include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+        include(conanbuildinfo.cmake)
         conan_basic_setup()
     else ()
         # Assume using conan "cmake_find_package" generator.
