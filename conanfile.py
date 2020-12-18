@@ -41,7 +41,7 @@ class LogrConan(ConanFile):
 
     def build_requirements(self):
         if self.options.spdlog_backend:
-            self.build_requires( "spdlog/1.8.0" )
+            self.build_requires( "spdlog/1.8.2" )
             self.build_requires_options["spdlog"].header_only = True
 
             # For benchmarks in similar conditions,
