@@ -353,14 +353,6 @@ struct basic_logger_traits_t
  *       particular log level and propagate copies of
  *       handle message builders biolerplates.
  *
- * @note There is a series of functions with
- *       the following signature:
- *       `virtual void log_message_xlevel( message_container_t & message )`
- *       that have delegating default implementation. And while
- *       as given here in this class `message` parameter should be const.
- *       it is not the case, because descendants might be interested in
- *       modifying message before delegating.
- *
  * @tparam Inline_Size       The size of stack buffer used for messages.
  * @tparam CharT             Cheracter type.
  * @tparam Allocator         Allocator used for buffer
