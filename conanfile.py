@@ -3,7 +3,7 @@ from conans.errors import ConanInvalidConfiguration
 
 class LogrConan(ConanFile):
     name = "logr"
-    version = "0.1.0"
+    version = "0.2.0"
     license = "BSD 3-Clause License"
     author = "Nicolai Grodzitski <utromvecherom@gmail.com>"
     url = "https://github.com/ngrodzitski/logr"
@@ -41,7 +41,7 @@ class LogrConan(ConanFile):
 
     def build_requirements(self):
         if self.options.spdlog_backend:
-            self.build_requires( "spdlog/1.8.0" )
+            self.build_requires( "spdlog/1.8.2" )
             self.build_requires_options["spdlog"].header_only = True
 
             # For benchmarks in similar conditions,
