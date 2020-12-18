@@ -11,6 +11,7 @@ branches:
   only:
     - main
     - dev-writeto-msg-builder-wrapped-out
+    - dev-conan-pkg-improvements
 
 linux: &linux
    os: linux
