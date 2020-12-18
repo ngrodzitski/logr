@@ -1,4 +1,5 @@
 from conans import ConanFile, CMake, tools
+from conans.errors import ConanInvalidConfiguration
 
 class LogrConan(ConanFile):
     name = "logr"
@@ -9,7 +10,7 @@ class LogrConan(ConanFile):
     description = "Logger frontend substitution for spdlog, glog, etc for server/desktop applications"
     topics = ("logger", "development", "util", "utils")
 
-    generators = "cmake_find_package"
+    generators = "cmake_find_package", "cmake"
     settings = "os", "compiler", "build_type", "arch"
 
     build_policy = "missing"
@@ -27,6 +28,8 @@ class LogrConan(ConanFile):
     default_options = { 'spdlog_backend': True,
                         'glog_backend': True,
                         'log4cplus_backend': True }
+
+    _cmake = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -55,25 +58,50 @@ class LogrConan(ConanFile):
         self.build_requires( "gtest/1.10.0" )
         self.build_requires( "benchmark/1.5.2" )
 
-    def _configure_cmake(self):
-        cmake = CMake(self)
-        cmake.definitions['LOGR_WITH_SPDLOG_BACKEND'] = self.options.spdlog_backend
-        cmake.definitions['LOGR_WITH_GLOG_BACKEND'] = self.options.glog_backend
-        cmake.definitions['LOGR_WITH_LOG4CPLUS_BACKEND'] = self.options.log4cplus_backend
+    def configure(self):
+        minimal_cpp_standard = "17"
+        if self.settings.compiler.cppstd:
+            tools.check_min_cppstd(self, minimal_cpp_standard)
+        minimal_version = {
+            "gcc": "7",
+            "clang": "7",
+            "apple-clang": "10",
+            "Visual Studio": "16"
+        }
+        compiler = str(self.settings.compiler)
+        if compiler not in minimal_version:
+            self.output.warn(
+                "%s recipe lacks information about the %s compiler standard version support" % (self.name, compiler))
+            self.output.warn(
+                "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
+            return
 
-        cmake.definitions['LOGR_BUILD_TESTS'] = self.logr_build_test_and_others
-        cmake.definitions['LOGR_BUILD_EXAMPLES'] = self.logr_build_test_and_others
-        cmake.definitions['LOGR_BUILD_BENCHMARKS'] = self.logr_build_test_and_others
+        version = tools.Version(self.settings.compiler.version)
+        if version < minimal_version[compiler]:
+            raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
+
+    def _configure_cmake(self):
+        if self._cmake:
+            return self._cmake
+
+        self._cmake = CMake(self)
+        self._cmake.definitions['LOGR_WITH_SPDLOG_BACKEND'] = self.options.spdlog_backend
+        self._cmake.definitions['LOGR_WITH_GLOG_BACKEND'] = self.options.glog_backend
+        self._cmake.definitions['LOGR_WITH_LOG4CPLUS_BACKEND'] = self.options.log4cplus_backend
+
+        self._cmake.definitions['LOGR_BUILD_TESTS'] = self.logr_build_test_and_others
+        self._cmake.definitions['LOGR_BUILD_EXAMPLES'] = self.logr_build_test_and_others
+        self._cmake.definitions['LOGR_BUILD_BENCHMARKS'] = self.logr_build_test_and_others
 
         if self.settings.compiler == "gcc" or self.settings.compiler == "clang":
-            cmake.definitions['EXPLICIT_LIBCXX'] = self.settings.compiler.libcxx
+            self._cmake.definitions['EXPLICIT_LIBCXX'] = self.settings.compiler.libcxx
 
         if self.settings.compiler == "Visual Studio":
             rt = self.settings.compiler.runtime
-            cmake.definitions['EXPLICIT_STATIC_RUNTIME'] = (rt == "MT" or rt == "MTd")
+            self._cmake.definitions['EXPLICIT_STATIC_RUNTIME'] = (rt == "MT" or rt == "MTd")
 
-        cmake.configure()
-        return cmake
+        self._cmake.configure()
+        return self._cmake
 
     def package(self):
         cmake = self._configure_cmake()
