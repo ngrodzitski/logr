@@ -12,7 +12,7 @@
 
 ## What is it? (TL;DR)
 
-**Project status**: alpha-draft.
+**Project status**: beta-draft.
 
 This is a experimentsl project showing my approach to build a logger interface used in application development. It is a revised version of what I've been using for the last couple of years in various projects.
 
