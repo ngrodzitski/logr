@@ -155,19 +155,19 @@ int main()
     } );
 
     logger.info( [&]( auto & out ) {
-        fmt::format_to( out, "X is {}! and Y is {}", x, y );
+        format_to( out, "X is {}! and Y is {}", x, y );
     } );
 
-    logger.info( [&]( auto & out ) {
-        fmt::format_to( out, "Y is {}! and X is {}", y, x );
+    logger.info( [&]( auto out ) {
+        format_to( out, "Y is {}! and X is {}", y, x );
     } );
 
     logger.info( [&x]( auto & out ) {
-        fmt::format_to( out, "X is {}! and Y is skipped", x );
+        out.format_to( "X is {}! and Y is skipped", x );
     } );
 
-    logger.info( [&y]( auto & out ) {
-        fmt::format_to( out, "Y is {}! and X is skipped", y );
+    logger.info( [&y]( auto out ) {
+        ::fmt::format_to( out.buf(), "Y is {}! and X is skipped", y );
     } );
 }
 ```

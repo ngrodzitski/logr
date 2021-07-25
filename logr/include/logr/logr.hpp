@@ -376,22 +376,36 @@ public:
     using string_view_t    = typename message_container_t::string_view_t;
     using message_buffer_t = typename message_container_t::message_buffer_t;
 
+    // clang-format off
+    /**
+     * @brief A shortcut to check a valid write-to message builder.
+     */
     template < typename Message_Builder >
-    static inline constexpr bool is_by_return_msg_producer_v =
+    static inline constexpr bool is_by_return_msg_builder_v =
         std::is_invocable_r< string_view_t, Message_Builder >::value;
 
+    /**
+     * @brief A shortcut to check a valid write-to message builder.
+     */
     template < typename Message_Builder >
-    static inline constexpr bool is_by_writeto_msg_producer_v =
-        std::is_invocable_v<
-            Message_Builder,
-            write_to_ouput_wrapper_t<
-                message_buffer_t > > || std::is_invocable_v< Message_Builder, write_to_ouput_wrapper_t< message_buffer_t > & >;
+    static inline constexpr bool is_by_writeto_msg_builder_v =
+        std::is_invocable_v< Message_Builder,
+                             write_to_ouput_wrapper_t< message_buffer_t > >
+        || std::is_invocable_v< Message_Builder,
+                                write_to_ouput_wrapper_t< message_buffer_t > & >;
 
+    /**
+     * @brief A shortcut to check a valid message builder.
+     */
     template < typename Message_Builder >
     static inline constexpr bool valid_message_producer_v =
-        is_by_return_msg_producer_v<
-            Message_Builder > || is_by_writeto_msg_producer_v< Message_Builder >;
+        is_by_return_msg_builder_v< Message_Builder >
+        || is_by_writeto_msg_builder_v< Message_Builder >;
+    // clang-format on
 
+    /**
+     * @brief Log-level driver type.
+     */
     using log_level_driver_t = Log_Level_Driver;
 
     /**
@@ -404,7 +418,7 @@ public:
 
 public:
     /**
-     * @brief Constract logger with a given log level.
+     * @brief Construct logger with a given log level.
      *
      * @param  level  Logging messages level.
      * @param  alloc  Allocator used for message buffer.
@@ -418,7 +432,7 @@ public:
     }
 
     /**
-     * @brief Constract logger with a default log level.
+     * @brief Construct logger with a default log level.
      *
      * @param  alloc  Allocator used for message buffer.
      */
@@ -479,14 +493,14 @@ public:
     {
         if( needs_log( Level ) )
         {
-            if constexpr( is_by_return_msg_producer_v<
+            if constexpr( is_by_return_msg_builder_v<
                               Message_Builder > )  // NOLINT
             {
                 log_message_level_x< Level >( msg_builder() );
             }
             else
             {
-                static_assert( is_by_writeto_msg_producer_v< Message_Builder >,
+                static_assert( is_by_writeto_msg_builder_v< Message_Builder >,
                                "Bad producer, that assert must never be failed, "
                                "unless a new message producer types are added" );
 
@@ -511,13 +525,13 @@ public:
     {
         if( needs_log( Level ) )
         {
-            if constexpr( is_by_return_msg_producer_v< Message_Builder > )
+            if constexpr( is_by_return_msg_builder_v< Message_Builder > )
             {
                 log_message_level_x< Level >( src_location, msg_builder() );
             }
             else
             {
-                static_assert( is_by_writeto_msg_producer_v< Message_Builder >,
+                static_assert( is_by_writeto_msg_builder_v< Message_Builder >,
                                "Bad producer, that assert must never be failed, "
                                "unless a new message producer types are added" );
 
@@ -527,7 +541,6 @@ public:
                     write_to_ouput_wrapper_t out{ msg.msg_buffer() };
                     msg_builder( out );
                 }
-                // msg_builder( msg.msg_buffer() );
 
                 // Dispatch message as a string view.
                 log_message_level_x< Level >( src_location, msg.make_view() );
@@ -1150,7 +1163,7 @@ public:
  * For cmake-based projects which operates the full path to files
  * it is handy to define a hint that points the size of prefix
  * containing useless part of project root directory on a given system.
- * TODO: add example and cmke snippet.
+ * TODO: add example and cmake snippet.
  */
 #if defined( LOGR_PRJ_COLLAPSE_SRC_LOCATION )
 // LOGR_PRJ_COLLAPSE_SRC_LOCATION is defined that means
