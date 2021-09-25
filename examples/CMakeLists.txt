@@ -23,3 +23,9 @@ if (LOGR_WITH_LOG4CPLUS_BACKEND)
     target_link_libraries(log4cplus_logger
                           PRIVATE logr::logr log4cplus::log4cplus)
 endif ()
+
+if (LOGR_WITH_GLOG_BACKEND)
+    add_executable(boostlog_logger boostlog_logger.cpp)
+    target_link_libraries(boostlog_logger
+                          PRIVATE logr::logr Boost::log)
+endif ()

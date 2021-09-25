@@ -49,7 +49,12 @@ TEST( LogrWriteToMsgBuilderStyles, OutByValue )  // NOLINT
         [x, &s]( auto out ) { out.format_to( "Test message {} \"{}\"", x, s ); } );
 
     logger.trace( [x, &s]( auto out ) {
+#if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
+        ::fmt::format_to(
+            ::fmt::appender( out.buf() ), "Test message {} \"{}\"", x, s );
+#else
         ::fmt::format_to( out.buf(), "Test message {} \"{}\"", x, s );
+#endif
     } );
 
     logger.trace( LOGR_SRC_LOCATION, [x, &s]( auto out ) {
@@ -61,7 +66,12 @@ TEST( LogrWriteToMsgBuilderStyles, OutByValue )  // NOLINT
     } );
 
     logger.trace( LOGR_SRC_LOCATION, [x, &s]( auto out ) {
+#if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
+        ::fmt::format_to(
+            ::fmt::appender( out.buf() ), "Test message {} \"{}\"", x, s );
+#else
         ::fmt::format_to( out.buf(), "Test message {} \"{}\"", x, s );
+#endif
     } );
 }
 
@@ -102,7 +112,12 @@ TEST( LogrWriteToMsgBuilderStyles, OutByReference )  // NOLINT
     } );
 
     logger.trace( [x, &s]( auto & out ) {
+#if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
+        ::fmt::format_to(
+            ::fmt::appender( out.buf() ), "Test message {} \"{}\"", x, s );
+#else
         ::fmt::format_to( out.buf(), "Test message {} \"{}\"", x, s );
+#endif
     } );
 
     logger.trace( LOGR_SRC_LOCATION, [x, &s]( auto & out ) {
@@ -114,7 +129,12 @@ TEST( LogrWriteToMsgBuilderStyles, OutByReference )  // NOLINT
     } );
 
     logger.trace( LOGR_SRC_LOCATION, [x, &s]( auto & out ) {
+#if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
+        ::fmt::format_to(
+            ::fmt::appender( out.buf() ), "Test message {} \"{}\"", x, s );
+#else
         ::fmt::format_to( out.buf(), "Test message {} \"{}\"", x, s );
+#endif
     } );
 }
 
