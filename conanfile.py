@@ -3,7 +3,7 @@ from conans.errors import ConanInvalidConfiguration
 
 class LogrConan(ConanFile):
     name = "logr"
-    version = "0.2.0"
+    version = "0.2.1"
     license = "BSD 3-Clause License"
     author = "Nicolai Grodzitski <utromvecherom@gmail.com>"
     url = "https://github.com/ngrodzitski/logr"
