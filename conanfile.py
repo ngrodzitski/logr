@@ -57,10 +57,14 @@ class LogrConan(ConanFile):
             self.build_requires( "log4cplus/2.0.5" )
             self.build_requires_options["log4cplus"].unicode = False
 
-        if self.options.boostlog_backend:
-            self.build_requires( "boost/1.71.0" )
+        compiler = str(self.settings.compiler)
+        version = tools.Version(self.settings.compiler.version)
+        newer_deps = (compiler == "gcc" and version > "10") or (compiler == "clang" and version > "11")
 
-        self.build_requires( "gtest/1.11.0" )
+        if self.options.boostlog_backend:
+            self.build_requires( "boost/1.77.0" if newer_deps else "boost/1.71.0")
+
+        self.build_requires( "gtest/1.11.0" if newer_deps else "gtest/1.10.0")
         self.build_requires( "benchmark/1.5.6" )
 
     def configure(self):
