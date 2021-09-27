@@ -92,7 +92,7 @@ option(LOGR_PRJ_COLLAPSE_SRC_LOCATION_ENABLED
 option(LOGR_WITH_SPDLOG_BACKEND "Provide logr with spdlog backend" ON)
 option(LOGR_WITH_GLOG_BACKEND "Provide logr with glog backend" ON)
 option(LOGR_WITH_LOG4CPLUS_BACKEND "Provide logr with log4cplus backend" ON)
-option(LOGR_WITH_BOOSTLOG_BACKEND "Provide logr with BOOSTLOG backend" ON)
+option(LOGR_WITH_BOOSTLOG_BACKEND "Provide logr with Boost.Log backend" ON)
 # ------------------------------------------------------------------------------
 
 if (NOT LOGR_CONAN_PACKAGING)

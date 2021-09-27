@@ -93,6 +93,7 @@ class LogrConan(ConanFile):
         self._cmake.definitions['LOGR_WITH_SPDLOG_BACKEND'] = self.options.spdlog_backend
         self._cmake.definitions['LOGR_WITH_GLOG_BACKEND'] = self.options.glog_backend
         self._cmake.definitions['LOGR_WITH_LOG4CPLUS_BACKEND'] = self.options.log4cplus_backend
+        self._cmake.definitions['LOGR_WITH_BOOSTLOG_BACKEND'] = self.options.boostlog_backend
 
         self._cmake.definitions['LOGR_BUILD_TESTS'] = self.logr_build_test_and_others
         self._cmake.definitions['LOGR_BUILD_EXAMPLES'] = self.logr_build_test_and_others

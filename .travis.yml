@@ -29,6 +29,9 @@ matrix:
       - <<: *linux
         env: CONAN_GCC_VERSIONS=10 CONAN_DOCKER_IMAGE=conanio/gcc10
 
+      - <<: *linux
+        env: CONAN_GCC_VERSIONS=10 CONAN_DOCKER_IMAGE=conanio/gcc11
+
 
       - <<: *linux
         env: CONAN_CLANG_VERSIONS=9 CONAN_DOCKER_IMAGE=conanio/clang9
