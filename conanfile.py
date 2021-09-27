@@ -60,7 +60,7 @@ class LogrConan(ConanFile):
         if self.options.boostlog_backend:
             self.build_requires( "boost/1.71.0" )
 
-        self.build_requires( "gtest/1.11.0" )
+        self.build_requires( "gtest/1.10.0" )
         self.build_requires( "benchmark/1.5.6" )
 
     def configure(self):
