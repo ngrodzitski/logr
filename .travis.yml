@@ -30,7 +30,7 @@ matrix:
         env: CONAN_GCC_VERSIONS=10 CONAN_DOCKER_IMAGE=conanio/gcc10
 
       - <<: *linux
-        env: CONAN_GCC_VERSIONS=10 CONAN_DOCKER_IMAGE=conanio/gcc11
+        env: CONAN_GCC_VERSIONS=11 CONAN_DOCKER_IMAGE=conanio/gcc11
 
 
       - <<: *linux
