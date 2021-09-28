@@ -29,8 +29,9 @@ matrix:
       - <<: *linux
         env: CONAN_GCC_VERSIONS=10 CONAN_DOCKER_IMAGE=conanio/gcc10
 
-      - <<: *linux
-        env: CONAN_GCC_VERSIONS=11 CONAN_DOCKER_IMAGE=conanio/gcc11
+      # Requires Boost build, which eats travis credits....
+      # - <<: *linux
+      #   env: CONAN_GCC_VERSIONS=11 CONAN_DOCKER_IMAGE=conanio/gcc11
 
 
       - <<: *linux
