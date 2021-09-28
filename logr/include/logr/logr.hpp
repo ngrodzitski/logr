@@ -11,6 +11,10 @@
 
 #include <fmt/format.h>
 
+#if defined( FMT_VERSION ) && ( FMT_VERSION >= 80000 )
+#    include <fmt/xchar.h>
+#endif
+
 #include <logr/config.hpp>
 
 namespace logr
@@ -110,7 +114,20 @@ public:
     template < typename... Args >
     auto format_to( Args &&... args )
     {
-        return ::fmt::format_to( buf(), std::forward< Args >( args )... );
+        if constexpr( std::is_same_v< typename Buffer::value_type, char > )
+        {
+#if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
+            return ::fmt::format_to( ::fmt::appender( buf() ),
+                                     std::forward< Args >( args )... );
+#else
+            return ::fmt::format_to( buf(), std::forward< Args >( args )... );
+#endif
+        }
+        else
+        {
+            return ::fmt::format_to( std::back_inserter( buf() ),
+                                     std::forward< Args >( args )... );
+        }
     }
 
 private:
@@ -131,7 +148,24 @@ private:
 template < typename Buffer, typename... Args >
 auto format_to( write_to_ouput_wrapper_t< Buffer > out, Args &&... args )
 {
-    return ::fmt::format_to( out.buf(), std::forward< Args >( args )... );
+    if constexpr( std::is_same_v< typename Buffer::value_type, char > )
+    {
+#if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
+        return ::fmt::format_to( ::fmt::appender( out.buf() ),
+                                 std::forward< Args >( args )... );
+#else
+        return ::fmt::format_to( out.buf(), std::forward< Args >( args )... );
+#endif
+    }
+    else
+    {
+        return ::fmt::format_to( std::back_inserter( out.buf() ),
+                                 std::forward< Args >( args )... );
+    }
+    // #if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
+    // #else
+    // return ::fmt::format_to( out.buf(), std::forward< Args >( args )... );
+    // #endif
 }
 
 //

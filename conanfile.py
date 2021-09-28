@@ -3,7 +3,7 @@ from conans.errors import ConanInvalidConfiguration
 
 class LogrConan(ConanFile):
     name = "logr"
-    version = "0.2.0"
+    version = "0.2.1"
     license = "BSD 3-Clause License"
     author = "Nicolai Grodzitski <utromvecherom@gmail.com>"
     url = "https://github.com/ngrodzitski/logr"
@@ -23,11 +23,13 @@ class LogrConan(ConanFile):
 
     options = { 'spdlog_backend' : [True, False],
                 'glog_backend' : [True, False],
-                'log4cplus_backend' : [True, False] }
+                'log4cplus_backend' : [True, False],
+                'boostlog_backend' : [True, False] }
 
     default_options = { 'spdlog_backend': True,
                         'glog_backend': True,
-                        'log4cplus_backend': True }
+                        'log4cplus_backend': True,
+                        'boostlog_backend' : True }
 
     _cmake = None
 
@@ -37,11 +39,11 @@ class LogrConan(ConanFile):
             self.exports_sources += "tests/*", "examples/*", "benchmarks/*"
 
     def requirements(self):
-        self.requires( "fmt/7.1.2" )
+        self.requires( "fmt/8.0.1" )
 
     def build_requirements(self):
         if self.options.spdlog_backend:
-            self.build_requires( "spdlog/1.8.2" )
+            self.build_requires( "spdlog/1.9.2" )
             self.build_requires_options["spdlog"].header_only = True
 
             # For benchmarks in similar conditions,
@@ -55,8 +57,15 @@ class LogrConan(ConanFile):
             self.build_requires( "log4cplus/2.0.5" )
             self.build_requires_options["log4cplus"].unicode = False
 
-        self.build_requires( "gtest/1.10.0" )
-        self.build_requires( "benchmark/1.5.2" )
+        compiler = str(self.settings.compiler)
+        version = tools.Version(self.settings.compiler.version)
+        newer_deps = (compiler == "gcc" and version > "10") or (compiler == "clang" and version > "11")
+
+        if self.options.boostlog_backend:
+            self.build_requires( "boost/1.77.0" if newer_deps else "boost/1.71.0")
+
+        self.build_requires( "gtest/1.11.0" if newer_deps else "gtest/1.10.0")
+        self.build_requires( "benchmark/1.5.6" )
 
     def configure(self):
         minimal_cpp_standard = "17"
@@ -88,6 +97,7 @@ class LogrConan(ConanFile):
         self._cmake.definitions['LOGR_WITH_SPDLOG_BACKEND'] = self.options.spdlog_backend
         self._cmake.definitions['LOGR_WITH_GLOG_BACKEND'] = self.options.glog_backend
         self._cmake.definitions['LOGR_WITH_LOG4CPLUS_BACKEND'] = self.options.log4cplus_backend
+        self._cmake.definitions['LOGR_WITH_BOOSTLOG_BACKEND'] = self.options.boostlog_backend
 
         self._cmake.definitions['LOGR_BUILD_TESTS'] = self.logr_build_test_and_others
         self._cmake.definitions['LOGR_BUILD_EXAMPLES'] = self.logr_build_test_and_others

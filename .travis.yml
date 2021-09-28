@@ -1,6 +1,6 @@
 env:
    global:
-     - CONAN_REFERENCE: "logr/0.2.0"
+     - CONAN_REFERENCE: "logr/0.2.1"
      - CONAN_USERNAME: "ngrodzitski"
      - CONAN_LOGIN_USERNAME: "ngrodzitski"
      - CONAN_CHANNEL: "testing"
@@ -28,6 +28,10 @@ matrix:
 
       - <<: *linux
         env: CONAN_GCC_VERSIONS=10 CONAN_DOCKER_IMAGE=conanio/gcc10
+
+      # Requires Boost build, which eats travis credits....
+      # - <<: *linux
+      #   env: CONAN_GCC_VERSIONS=11 CONAN_DOCKER_IMAGE=conanio/gcc11
 
 
       - <<: *linux
