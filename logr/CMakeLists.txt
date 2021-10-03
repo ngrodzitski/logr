@@ -21,6 +21,10 @@ if (LOGR_WITH_LOG4CPLUS_BACKEND)
     list(APPEND logr_public_headers include/logr/log4cplus_backend.hpp )
 endif ()
 
+if (LOGR_WITH_BOOSTLOG_BACKEND)
+    list(APPEND logr_public_headers include/logr/boostlog_backend.hpp )
+endif ()
+
 set(logr_headers ${logr_public_headers})
 
 list(APPEND logr_headers include/logr/config.hpp.in)
@@ -56,6 +60,12 @@ configure_file(include/logr/config.hpp.in ${CONFIG_HEADER_PATH} )
 add_library(${logr_prj} INTERFACE)
 add_library(${logr_prj}::${logr_prj} ALIAS ${logr_prj})
 
+# To have the same "Component target as in Conan:"
+add_library(${logr_prj}_base INTERFACE)
+add_library(${logr_prj}::${logr_prj}_base ALIAS ${logr_prj}_base)
+set_property(TARGET ${logr_prj}_base APPEND PROPERTY
+             INTERFACE_LINK_LIBRARIES "${logr_prj}")
+
 target_compile_features(${logr_prj} INTERFACE cxx_std_17)
 
 set(TARGET_BUILD_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
@@ -68,6 +78,40 @@ target_include_directories(${logr_prj} INTERFACE
         $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(${logr_prj} INTERFACE fmt::fmt)
+
+list(APPEND all_logr_targets ${logr_prj} ${logr_prj}_base)
+
+if (LOGR_WITH_SPDLOG_BACKEND)
+    add_library(${logr_prj}_spdlog INTERFACE)
+    add_library(${logr_prj}::${logr_prj}_spdlog ALIAS ${logr_prj}_spdlog)
+    target_link_libraries(${logr_prj}_spdlog INTERFACE ${logr_prj}::${logr_prj}
+                                                       spdlog::spdlog)
+    list(APPEND all_logr_targets ${logr_prj}_spdlog)
+endif ()
+
+if (LOGR_WITH_GLOG_BACKEND)
+    add_library(${logr_prj}_glog INTERFACE)
+    add_library(${logr_prj}::${logr_prj}_glog ALIAS ${logr_prj}_glog)
+    target_link_libraries(${logr_prj}_glog INTERFACE ${logr_prj}::${logr_prj}
+                                                       glog::glog)
+    list(APPEND all_logr_targets ${logr_prj}_glog)
+endif ()
+
+if (LOGR_WITH_LOG4CPLUS_BACKEND)
+    add_library(${logr_prj}_log4cplus INTERFACE)
+    add_library(${logr_prj}::${logr_prj}_log4cplus ALIAS ${logr_prj}_log4cplus)
+    target_link_libraries(${logr_prj}_log4cplus INTERFACE ${logr_prj}::${logr_prj}
+                                                       log4cplus::log4cplus)
+    list(APPEND all_logr_targets ${logr_prj}_log4cplus)
+endif ()
+
+if (LOGR_WITH_BOOSTLOG_BACKEND)
+    add_library(${logr_prj}_boostlog INTERFACE)
+    add_library(${logr_prj}::${logr_prj}_boostlog ALIAS ${logr_prj}_boostlog)
+    target_link_libraries(${logr_prj}_boostlog INTERFACE ${logr_prj}::${logr_prj}
+                                                       Boost::log)
+    list(APPEND all_logr_targets ${logr_prj}_boostlog)
+endif ()
 # ====================================================================
 
 # ====================================================================
@@ -80,7 +124,7 @@ if (LOGR_INSTALL)
 
     set(cmake_destination ${CMAKE_INSTALL_LIBDIR}/cmake/${logr_prj})
 
-    install(TARGETS ${logr_prj}
+    install(TARGETS ${all_logr_targets}
         EXPORT ${logr_prj}_project_targets
         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

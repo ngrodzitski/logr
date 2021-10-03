@@ -3,7 +3,7 @@ from conans.errors import ConanInvalidConfiguration
 
 class LogrConan(ConanFile):
     name = "logr"
-    version = "0.2.1"
+    version = "0.3.0"
     license = "BSD 3-Clause License"
     author = "Nicolai Grodzitski <utromvecherom@gmail.com>"
     url = "https://github.com/ngrodzitski/logr"
@@ -51,7 +51,7 @@ class LogrConan(ConanFile):
             self.build_requires_options["spdlog"].no_exceptions = True
 
         if self.options.glog_backend:
-            self.build_requires( "glog/0.4.0" )
+            self.build_requires( "glog/0.5.0" )
 
         if self.options.log4cplus_backend:
             self.build_requires( "log4cplus/2.0.5" )
