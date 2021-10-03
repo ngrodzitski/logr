@@ -14,15 +14,23 @@
 
 **Project status**: beta-draft.
 
-This is a experimentsl project showing my approach to build a logger interface used in application development. It is a revised version of what I've been using for the last couple of years in various projects.
+This is a experimentsl project showing my approach to build a logger interface
+used in application development. It is a revised version of what
+I've been using for the last couple of years in various projects.
 
-This is not a self-contained logging library. Consider it as a "frontend" or a "wrapper" for whatever logging routine of your choice (which can be integrated as a backend). It can be used "as is" in your application or it can be adopted for your case or maybe you can just pick some ideas and came up with a better solution.
+This is not a self-contained logging library.
+Consider it as a "frontend" or a "wrapper" for whatever logging routine
+of your choice (which can be integrated as a backend).
+It can be used "as is" in your application or it can be adopted for your case
+or maybe you can just pick some ideas and came up with a better solution.
 
-Consider the following reasoning behing logr design [here](./design/on-logr-design.md).
+Consider the following reasoning behing logr design
+[here](./design/on-logr-design.md).
 
 ## Build
 
-By itself logr is a header-only library. So talking about build we mean build tests, examples and benchmarks.
+By itself logr is a header-only library.
+So talking about build we mean build tests, examples and benchmarks.
 
 ### Prerequisetes
 
@@ -31,7 +39,9 @@ By itself logr is a header-only library. So talking about build we mean build te
 * Package manager ([conan](https://conan.io/), or [vcpkg](https://github.com/microsoft/vcpkg)).
 * Clone repository with submodules (don't forget `--recurse-submodules` option).
 
-Logr relies on "backend" logging library. And it comes with ready to go backends for a couple of libraries which are considered to be provided by package manager.
+Logr relies on "backend" logging library.
+And it comes with ready to go backends for a couple of libraries
+which are considered to be provided by package manager.
 
 ### Build on linux with Conan
 
@@ -110,9 +120,11 @@ ctest -T test
 ```
 ## Build with Vcpkg
 
-To build tests, examples and benchmarks the following packages should be installed: glog, spdlog, log4cplus, gtest, benchmark.
+To build tests, examples and benchmarks the following packages
+should be installed: glog, spdlog, log4cplus, Boost, gtest, benchmark.
 
-Having all dependencies in place one can build the project using the following commands:
+Having all dependencies in place one can build the project
+using the following commands:
 
 ```bash
 mkdir _vcpkg_build
@@ -176,7 +188,12 @@ See all [examples](./examples).
 
 ## Naming
 
-The original idea behind the library came from [restinio](https://github.com/Stiffstream/restinio) in which a custom logger can be integrated to RESTinio to track its internal events. That is pretty much the major idea around Logr, so `logr = LOGger from Restinio` to show gratitude to great library. And on the other hand it just 4 letters long which is good for namespaces.
+The original idea behind the library came from
+[restinio](https://github.com/Stiffstream/restinio) in which a custom logger
+can be integrated to RESTinio to track its internal events.
+That is pretty much the major idea around Logr,
+so `logr = LOGger from Restinio` to show gratitude to great library.
+And on the other hand it just 4 letters long which is good for namespaces.
 
 ## License
 
@@ -187,3 +204,4 @@ Libraries used as logger backends are distributed under their license:
 * [spdlog](https://github.com/gabime/spdlog).
 * [glog](https://github.com/google/glog).
 * [log4cplus](https://github.com/log4cplus/log4cplus).
+* [Boost::log](https://www.boost.org/doc/libs/1_77_0/libs/log/doc/html/index.html) trivial.
