@@ -9,7 +9,7 @@ option(LOGR_CONAN_PACKAGING "A flag stating if this is a conan packaging setup" 
 if (NOT LOGR_CONAN_PACKAGING)
     include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/cpp_standard.cmake")
     include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/libcxx.cmake")
-    include( "${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/static_runtime.cmake" )
+    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/static_runtime.cmake" )
 
     message(STATUS "ENABLE C++17")
     cxx_17()
@@ -107,7 +107,7 @@ if (NOT LOGR_CONAN_PACKAGING)
     include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/find_program_required.cmake")
     include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/append_src_files.cmake")
     include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/link_threads_if_necessary.cmake")
-    include( "${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/static_analysis.cmake" )
+    include("${CMAKE_CURRENT_SOURCE_DIR}/cmake-scripts/static_analysis.cmake" )
     # ------------------------------------------------------------------------------
 
     # ------------------------------------------------------------------------------

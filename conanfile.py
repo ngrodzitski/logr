@@ -3,7 +3,7 @@ from conans.errors import ConanInvalidConfiguration
 
 class LogrConan(ConanFile):
     name = "logr"
-    version = "0.3.0"
+    version = "0.4.0"
     license = "BSD 3-Clause License"
     author = "Nicolai Grodzitski <utromvecherom@gmail.com>"
     url = "https://github.com/ngrodzitski/logr"
@@ -38,33 +38,35 @@ class LogrConan(ConanFile):
         if self.logr_build_test_and_others:
             self.exports_sources += "tests/*", "examples/*", "benchmarks/*"
 
-    def requirements(self):
-        self.requires( "fmt/8.0.1" )
+    def are_newer_deps(self):
+        compiler = str(self.settings.compiler)
+        version = tools.Version(self.settings.compiler.version)
 
-    def build_requirements(self):
+        return (compiler == "gcc" and version > "10") or (compiler == "clang" and version > "11")
+
+    def requirements(self):
+        self.requires( "fmt/8.1.1" )
+
         if self.options.spdlog_backend:
-            self.build_requires( "spdlog/1.9.2" )
-            self.build_requires_options["spdlog"].header_only = True
+            self.requires( "spdlog/1.9.2" )
+            self.options["spdlog"].header_only = True
 
             # For benchmarks in similar conditions,
             # spdlog should do no exception catching.
-            self.build_requires_options["spdlog"].no_exceptions = True
+            self.options["spdlog"].no_exceptions = True
 
         if self.options.glog_backend:
-            self.build_requires( "glog/0.5.0" )
+            self.requires( "glog/0.5.0" )
 
         if self.options.log4cplus_backend:
-            self.build_requires( "log4cplus/2.0.5" )
-            self.build_requires_options["log4cplus"].unicode = False
-
-        compiler = str(self.settings.compiler)
-        version = tools.Version(self.settings.compiler.version)
-        newer_deps = (compiler == "gcc" and version > "10") or (compiler == "clang" and version > "11")
+            self.requires( "log4cplus/2.0.5" )
+            self.options["log4cplus"].unicode = False
 
         if self.options.boostlog_backend:
-            self.build_requires( "boost/1.77.0" if newer_deps else "boost/1.71.0")
+            self.requires( "boost/1.78.0" if self.are_newer_deps() else "boost/1.71.0")
 
-        self.build_requires( "gtest/1.11.0" if newer_deps else "gtest/1.10.0")
+    def build_requirements(self):
+        self.build_requires( "gtest/cci.20210126" if self.are_newer_deps() else "gtest/1.10.0")
         self.build_requires( "benchmark/1.5.6" )
 
     def configure(self):
@@ -120,7 +122,6 @@ class LogrConan(ConanFile):
             # If test are enabled build project and run tests.
             cmake.build()
             cmake.test(output_on_failure=True)
-
         cmake.install()
 
     def package_id(self):
