@@ -37,31 +37,31 @@ public:
     }
 
 private:
-    void log_message_trace( string_view_t ) final {}
+    constexpr void log_message_trace( string_view_t ) final {}
 
-    void log_message_trace( src_location_t, string_view_t ) final {}
+    constexpr void log_message_trace( src_location_t, string_view_t ) final {}
 
-    void log_message_debug( string_view_t ) final {}
+    constexpr void log_message_debug( string_view_t ) final {}
 
-    void log_message_debug( src_location_t, string_view_t ) final {}
+    constexpr void log_message_debug( src_location_t, string_view_t ) final {}
 
-    void log_message_info( string_view_t ) final {}
+    constexpr void log_message_info( string_view_t ) final {}
 
-    void log_message_info( src_location_t, string_view_t ) final {}
+    constexpr void log_message_info( src_location_t, string_view_t ) final {}
 
-    void log_message_warn( string_view_t ) final {}
+    constexpr void log_message_warn( string_view_t ) final {}
 
-    void log_message_warn( src_location_t, string_view_t ) final {}
+    constexpr void log_message_warn( src_location_t, string_view_t ) final {}
 
-    void log_message_error( string_view_t ) final {}
+    constexpr void log_message_error( string_view_t ) final {}
 
-    void log_message_error( src_location_t, string_view_t ) final {}
+    constexpr void log_message_error( src_location_t, string_view_t ) final {}
 
-    void log_message_critical( string_view_t ) final {}
+    constexpr void log_message_critical( string_view_t ) final {}
 
-    void log_message_critical( src_location_t, string_view_t ) final {}
+    constexpr void log_message_critical( src_location_t, string_view_t ) final {}
 
-    void log_flush() final {}
+    constexpr void log_flush() final {}
 };
 
 template < std::size_t Inline_Size = 1,
