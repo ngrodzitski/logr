@@ -11,9 +11,11 @@
 
 #include <fmt/format.h>
 
-#if defined( FMT_VERSION ) && ( FMT_VERSION >= 80000 )
-#    include <fmt/xchar.h>
+#if !defined( FMT_VERSION ) || ( FMT_VERSION < 80000 )
+#    error "Logr requires fmt of version 8.0.0 or later"
 #endif
+
+#include <fmt/xchar.h>
 
 #include <logr/config.hpp>
 
@@ -111,22 +113,29 @@ public:
     /**
      * @brief a shortcut function to perform message formating to buffer.
      */
-    template < typename... Args >
-    auto format_to( Args &&... args )
+    template < typename Fmt_String, typename... Args >
+    auto format_to( const Fmt_String & fs, Args &&... args )
     {
         if constexpr( std::is_same_v< typename Buffer::value_type, char > )
         {
-#if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
-            return ::fmt::format_to( ::fmt::appender( buf() ),
-                                     std::forward< Args >( args )... );
-#else
-            return ::fmt::format_to( buf(), std::forward< Args >( args )... );
-#endif
+            if constexpr( !std::is_base_of_v< ::fmt::compile_string, Fmt_String > )
+            {
+                return ::fmt::format_to( ::fmt::appender( buf() ),
+                                         ::fmt::runtime( fs ),
+                                         std::forward< Args >( args )... );
+            }
+            else
+            {
+
+                return ::fmt::format_to( ::fmt::appender( buf() ),
+                                         fs,
+                                         std::forward< Args >( args )... );
+            }
         }
         else
         {
-            return ::fmt::format_to( std::back_inserter( buf() ),
-                                     std::forward< Args >( args )... );
+            return ::fmt::format_to(
+                std::back_inserter( buf() ), fs, std::forward< Args >( args )... );
         }
     }
 
@@ -145,27 +154,12 @@ private:
  * } );
  * @endcode
  */
-template < typename Buffer, typename... Args >
-auto format_to( write_to_ouput_wrapper_t< Buffer > out, Args &&... args )
+template < typename Buffer, typename Fmt_String, typename... Args >
+auto format_to( write_to_ouput_wrapper_t< Buffer > out,
+                const Fmt_String & fs,
+                Args &&... args )
 {
-    if constexpr( std::is_same_v< typename Buffer::value_type, char > )
-    {
-#if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
-        return ::fmt::format_to( ::fmt::appender( out.buf() ),
-                                 std::forward< Args >( args )... );
-#else
-        return ::fmt::format_to( out.buf(), std::forward< Args >( args )... );
-#endif
-    }
-    else
-    {
-        return ::fmt::format_to( std::back_inserter( out.buf() ),
-                                 std::forward< Args >( args )... );
-    }
-    // #if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
-    // #else
-    // return ::fmt::format_to( out.buf(), std::forward< Args >( args )... );
-    // #endif
+    out.format_to( fs, std::forward< Args >( args )... );
 }
 
 //
