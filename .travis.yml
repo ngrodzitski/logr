@@ -1,6 +1,6 @@
 env:
    global:
-     - CONAN_REFERENCE: "logr/0.5.0"
+     - CONAN_REFERENCE: "logr/0.5.1"
      - CONAN_USERNAME: "ngrodzitski"
      - CONAN_LOGIN_USERNAME: "ngrodzitski"
      - CONAN_CHANNEL: "testing"
