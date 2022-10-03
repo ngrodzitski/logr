@@ -113,24 +113,38 @@ public:
     /**
      * @brief a shortcut function to perform message formating to buffer.
      */
-    template < typename Fmt_String, typename... Args >
+    template < typename Fmt_String,
+               typename... Args,
+               typename = std::enable_if_t<
+                   std::is_base_of_v< ::fmt::compile_string, Fmt_String > > >
+    auto format_to( Fmt_String fs, Args &&... args )
+    {
+        if constexpr( std::is_same_v< typename Buffer::value_type, char > )
+        {
+            return ::fmt::format_to(
+                ::fmt::appender( buf() ), fs, std::forward< Args >( args )... );
+        }
+        else
+        {
+            return ::fmt::format_to(
+                std::back_inserter( buf() ), fs, std::forward< Args >( args )... );
+        }
+    }
+
+    /**
+     * @brief a shortcut function to perform message formating to buffer.
+     */
+    template < typename Fmt_String,
+               typename... Args,
+               typename = std::enable_if_t<
+                   !std::is_base_of_v< ::fmt::compile_string, Fmt_String > > >
     auto format_to( const Fmt_String & fs, Args &&... args )
     {
         if constexpr( std::is_same_v< typename Buffer::value_type, char > )
         {
-            if constexpr( !std::is_base_of_v< ::fmt::compile_string, Fmt_String > )
-            {
-                return ::fmt::format_to( ::fmt::appender( buf() ),
-                                         ::fmt::runtime( fs ),
-                                         std::forward< Args >( args )... );
-            }
-            else
-            {
-
-                return ::fmt::format_to( ::fmt::appender( buf() ),
-                                         fs,
-                                         std::forward< Args >( args )... );
-            }
+            return ::fmt::format_to( ::fmt::appender( buf() ),
+                                     ::fmt::runtime( fs ),
+                                     std::forward< Args >( args )... );
         }
         else
         {
@@ -156,7 +170,7 @@ private:
  */
 template < typename Buffer, typename Fmt_String, typename... Args >
 auto format_to( write_to_ouput_wrapper_t< Buffer > out,
-                const Fmt_String & fs,
+                Fmt_String fs,
                 Args &&... args )
 {
     out.format_to( fs, std::forward< Args >( args )... );
