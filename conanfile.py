@@ -3,7 +3,7 @@ from conans.errors import ConanInvalidConfiguration
 
 class LogrConan(ConanFile):
     name = "logr"
-    version = "0.5.1"
+    version = "0.6.0"
     license = "BSD 3-Clause License"
     author = "Nicolai Grodzitski <utromvecherom@gmail.com>"
     url = "https://github.com/ngrodzitski/logr"
@@ -45,10 +45,10 @@ class LogrConan(ConanFile):
         return (compiler == "gcc" and version > "10") or (compiler == "clang" and version > "11")
 
     def requirements(self):
-        self.requires( "fmt/8.1.1" )
+        self.requires( "fmt/9.1.0" )
 
         if self.options.spdlog_backend:
-            self.requires( "spdlog/1.9.2" )
+            self.requires( "spdlog/1.11.0" )
             self.options["spdlog"].header_only = True
 
             # For benchmarks in similar conditions,
@@ -56,7 +56,7 @@ class LogrConan(ConanFile):
             self.options["spdlog"].no_exceptions = True
 
         if self.options.glog_backend:
-            self.requires( "glog/0.5.0" )
+            self.requires( "glog/0.6.0" )
 
         if self.options.log4cplus_backend:
             self.requires( "log4cplus/2.0.5" )
@@ -67,17 +67,17 @@ class LogrConan(ConanFile):
 
     def build_requirements(self):
         self.build_requires( "gtest/cci.20210126" if self.are_newer_deps() else "gtest/1.10.0")
-        self.build_requires( "benchmark/1.5.6" )
+        self.build_requires( "benchmark/1.7.1" )
 
     def configure(self):
         minimal_cpp_standard = "17"
         if self.settings.compiler.cppstd:
             tools.check_min_cppstd(self, minimal_cpp_standard)
         minimal_version = {
-            "gcc": "7",
-            "clang": "7",
-            "apple-clang": "10",
-            "Visual Studio": "16"
+            "gcc": "10",
+            "clang": "11",
+            "apple-clang": "12",
+            "Visual Studio": "19"
         }
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
