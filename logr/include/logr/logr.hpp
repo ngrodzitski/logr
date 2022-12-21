@@ -179,7 +179,7 @@ auto format_to( write_to_ouput_wrapper_t< Buffer > out,
                 Fmt_String fs,
                 Args &&... args )
 {
-    out.format_to( fs, std::forward< Args >( args )... );
+    return out.format_to( fs, std::forward< Args >( args )... );
 }
 
 //
