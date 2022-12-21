@@ -173,4 +173,31 @@ TEST( LogrLevelsRouting, CriticalMessages )  // NOLINT
     } );
 }
 
+TEST( LogrLevelsRouting, DynamicLogLevel )  // NOLINT
+{
+    logr_test::logger_mock_t<> logger( logr::log_message_level::trace );
+
+    InSequence seq;
+    EXPECT_CALL( logger, log_message_trace( An< std::string_view >() ) );
+    EXPECT_CALL( logger, log_message_debug( _, An< std::string_view >() ) );
+    EXPECT_CALL( logger, log_message_info( An< std::string_view >() ) );
+    EXPECT_CALL( logger, log_message_warn( _, An< std::string_view >() ) );
+    EXPECT_CALL( logger, log_message_error( An< std::string_view >() ) );
+    EXPECT_CALL( logger, log_message_critical( _, An< std::string_view >() ) );
+
+    logger.message_level_x( logr::log_message_level::trace,  "test [raw message]" );
+    logger.message_level_x( logr::log_message_level::debug, LOGR_SRC_LOCATION, "test [raw message]" );
+
+    logger.message_level_x( logr::log_message_level::info, []() { return "test [cb]"; } );
+    logger.message_level_x( logr::log_message_level::warn, LOGR_SRC_LOCATION, []() { return "test [cb]"; } );
+
+    logger.message_level_x( logr::log_message_level::error, []( auto & out ) {
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
+    } );
+
+    logger.message_level_x( logr::log_message_level::critical, LOGR_SRC_LOCATION, []( auto & out ) {
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
+    } );
+}
+
 } /* anonymous namespace */

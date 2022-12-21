@@ -92,6 +92,12 @@ private:
 template < typename Buffer >
 class write_to_ouput_wrapper_t
 {
+#if FMT_VERSION < 90000
+    using fmt_compile_string = ::fmt::compile_string;
+#else
+    using fmt_compile_string = ::fmt::detail::compile_string;
+#endif
+
 public:
     /**
      * @brief Init with a given buffer.
@@ -113,24 +119,38 @@ public:
     /**
      * @brief a shortcut function to perform message formating to buffer.
      */
-    template < typename Fmt_String, typename... Args >
+    template < typename Fmt_String,
+               typename... Args,
+               typename = std::enable_if_t<
+                   std::is_base_of_v< fmt_compile_string, Fmt_String > > >
+    auto format_to( Fmt_String fs, Args &&... args )
+    {
+        if constexpr( std::is_same_v< typename Buffer::value_type, char > )
+        {
+            return ::fmt::format_to(
+                ::fmt::appender( buf() ), fs, std::forward< Args >( args )... );
+        }
+        else
+        {
+            return ::fmt::format_to(
+                std::back_inserter( buf() ), fs, std::forward< Args >( args )... );
+        }
+    }
+
+    /**
+     * @brief a shortcut function to perform message formating to buffer.
+     */
+    template < typename Fmt_String,
+               typename... Args,
+               typename = std::enable_if_t<
+                   !std::is_base_of_v< fmt_compile_string, Fmt_String > > >
     auto format_to( const Fmt_String & fs, Args &&... args )
     {
         if constexpr( std::is_same_v< typename Buffer::value_type, char > )
         {
-            if constexpr( !std::is_base_of_v< ::fmt::compile_string, Fmt_String > )
-            {
-                return ::fmt::format_to( ::fmt::appender( buf() ),
-                                         ::fmt::runtime( fs ),
-                                         std::forward< Args >( args )... );
-            }
-            else
-            {
-
-                return ::fmt::format_to( ::fmt::appender( buf() ),
-                                         fs,
-                                         std::forward< Args >( args )... );
-            }
+            return ::fmt::format_to( ::fmt::appender( buf() ),
+                                     ::fmt::runtime( fs ),
+                                     std::forward< Args >( args )... );
         }
         else
         {
@@ -156,7 +176,7 @@ private:
  */
 template < typename Buffer, typename Fmt_String, typename... Args >
 auto format_to( write_to_ouput_wrapper_t< Buffer > out,
-                const Fmt_String & fs,
+                Fmt_String fs,
                 Args &&... args )
 {
     out.format_to( fs, std::forward< Args >( args )... );
@@ -844,6 +864,59 @@ public:
     {
         message< log_message_level::critical >( src_location,
                                                 std::move( msg_builder ) );
+    }
+
+    /**
+     * @brief Log message with runtime defined log level.
+     *
+     * @code
+     * // Log warning on every 128 dropped messages.
+     * const auto log_lvl =  dropped_msg_count && (0 == dropped_msg_count % 128) ?
+     *     log_message_level::trace : log_message_level::warn;
+     * logger().message_level_x( log_lvl, []( auto out ){
+     *     format_to( out,
+     *                FMT_STRING("session drops msg, total count: {}"),
+     *                dropped_msg_count );
+     * } );
+     * @endcode
+     *
+     * @pre log_lvl must be one of possible log_message_level values.
+     *
+     * @param log_lvl  Log level to log a message with.
+     * @since v0.6.0
+     */
+    template < typename... Args >
+    void message_level_x( log_message_level log_lvl, Args &&... args )
+    {
+        switch( log_lvl )
+        {
+            case log_message_level::trace:
+                this->trace( std::forward< Args >( args )... );
+                return;
+
+            case log_message_level::debug:
+                this->debug( std::forward< Args >( args )... );
+                return;
+
+            case log_message_level::info:
+                this->info( std::forward< Args >( args )... );
+                return;
+
+            case log_message_level::warn:
+                this->warn( std::forward< Args >( args )... );
+                return;
+
+            case log_message_level::error:
+                this->error( std::forward< Args >( args )... );
+                return;
+
+            case log_message_level::critical:
+                this->critical( std::forward< Args >( args )... );
+                return;
+
+            case log_message_level::nolog:
+                return;
+        };
     }
 
     void flush() { log_flush(); }
