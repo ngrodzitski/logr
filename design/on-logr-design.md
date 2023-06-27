@@ -12,91 +12,131 @@
 
 ## Motivation
 
-Logging is a well-developed topic, and you can find lots of libraries suggesting a rich specter of approaches tuned for various application specifics. Such a variety, in some sense, causes the issue I'm trying to address here with Logr.
+Logging is a well-developed topic, and there are numerous libraries available that offer a wide range of logging approaches tailored to specific application needs.
+However, this abundance of choices can create challenges when it comes to addressing logging requirements within a library, which is the issue that Logr aims to solve.
 
-In the casual case of making a piece of application software, choosing a logger has a well-defined usage scope- the application code. Once the choice of a logger library is made (it can also be your in-house one), you follow a practice that you find appropriate for it. And there is nothing wrong with it.
+In the typical case of developing an application, choosing a logger is straightforward and limited to the application's codebase.
+Once a logger library is selected, developers can follow their preferred logging practices without any issues.
+However, when it comes to writing library software, the logger selection is not merely an internal concern.
+A robust library is designed to be reused in various projects, which can be applications or other libraries themselves.
+While many libraries may not require logging and could even be burdened by the introduction of logging functionality, let's focus on libraries that can provide added value through their log output.
 
-However, choosing a logger while writing library software is not purely an internal affair. A sound library is intended to be reused in other projects that can be applications or libraries by themselves. Many libraries don't need any logging and would even lose if an effort to introduce one will be taken. But let us focus on libraries giving an extra value if you can get its log.
+This raises the problem: different clients of a library may adhere to different logging approaches.
+One popular approach is to introduce a base logger class that clients can implement and then pass to the library routines.
+I have personally employed this solution multiple times.
+However, upon closer examination, certain issues emerge that may initially seem insignificant within the scope of a single project but become critical when considering multiple cases of library reuse.
 
-And here comes the problem: different library clients might stick to different logging approaches. A popular approach is to introduce a base logger class that can be implemented on the client-side and then passed to the library routine. And I've applied that kind of solution many times. But if you dig into the details of such practice, some issues might seem unimportant on the scale of a single project but become subjects to consider while thinking at the scale of multiple cases of reuse.
+Let's explore the trade-offs associated with a straightforward base logger-class approach.
+As an illustrative example, we'll consider `FooLib`, which is used in `BarApp`.
+In this scenario, `BarApp` has its own logger and wishes to utilize it within `FooLib` to track the internal state and events of `FooLib` (either as an optional or permanent feature).
+While the following points may not be universally applicable to all cases, they represent some key considerations:
 
-Let's see what the trade-offs of a straightforward base logger-class approach are. For the narrative, as a reference example, I will use `FooLib` that is used in `BarApp`. So `BarApp` has its logger and wants to use it in `FooLib` to track `FooLib`'s internal state and events (an optional or a permanent feature). Without claiming to be universally valid for all the possible cases, major points would be the following:
+* The impact of virtual function calls.
+* Handling of resource-intensive log messages. The process of building a message might be kind of resource-consuming.
+* Custom log message formatting.
 
-* The number of virtual calls.
-* Handling heavy messages. The process of building a message might be kind of resource-consuming.
-* Custom formatting.
+Additionally, I'd like to highlight a couple of personal concerns:
 
-A bonus couple of points (my personal concerns):
 
-* Separation of logging assisting code from application code.
-* Elimination of logging usage (which appears to be quite popular with other devs).
+* Separation of logging assisting code from application-specific code.
+* Enabling the ability to disable logging altogether (a feature commonly requested by developers).
 
-Once again, for a single case in a single project, those considerations might not be sufficient to accept the efforts on building a well-designed approach to minimize tradeoffs associated with the mentioned concerns. But when the similar (in terms of its logical model) task arises repeatedly, you would be thinking about how to deal with it properly at least for your conditions.
+Once again, for a single case in a single project, these considerations may not warrant the effort of developing a well-designed approach to minimize trade-offs.
+However, when facing recurring tasks that share similar logical models, it becomes worth an effort to address these concerns properly at least for your conditions.
 
-So a good solution would try to enforce log usage and practice that draws minimal extra cost associated with the considerations mentioned above under given conditions.
+Therefore, an ideal solution should encourage consistent log usage and practices while imposing minimal additional costs associated with the aforementioned considerations.
 
 ## Further thought and observations
 
-Let's focus on the major concerns and analyze them. The goal is to gather a detailed picture so we would be prepared to find an acceptable solution.
+Let's shift our attention to the major concerns and thoroughly analyze them.
+The objective is to gain a comprehensive understanding so that we are well-prepared to find an acceptable solution.
 
 ### Amount of virtual calls
 
-Base logger-class approach assumes some king of the following virtual function: `virtual mb_return_type_t log_message( msg ) = 0;` which is provided by implementations. In event-intensive scenarios with lots of logging, it negatively affects overall performance. Under given conditions, the virtual call can be eliminated or can be unavoidable.
+The base logger-class approach assumes the existence of a virtual function, such as `virtual mb_return_type_t log_message(msg) = 0;`, which is implemented by derived classes.
+However, in scenarios with heavy logging and frequent events, the presence of virtual calls can have a negative impact on overall performance.
+Depending on the given conditions, it may or may not be possible to eliminate or reduce the number of virtual calls.
 
-For example, if `FooLib` is a header-only library and logger type is a template parameter then the compiler can devirtualize all calls to `log_mesage()` function and allowing inlining (at least it will try to), especially if logger implementation is marked as `final` (or target functions are `final`).
+For instance, if `FooLib` is a header-only library and the logger type is a template parameter, the compiler can potentially devirtualize all calls to the `log_message()` function and enable inlining.
+This optimization is especially likely if the logger implementation is marked as `final` or if the target functions are `final`.
+You can refer to a [short demo](https://godbolt.org/z/KvnhfW) showcasing what the compiler can do for devirtualization.
 
-See a [short demo](https://godbolt.org/z/KvnhfW) of what compiler can do for devirtualization.
+In a non-header-only context, completely eliminating virtual calls is typically not feasible, as the `FooLib` code lacks knowledge of the specific logger type, except when using the exact "final" type of logger.
+Therefore, the goal should be to minimize the number of virtual calls.
+Let's explore some considerations that might help us achieve this optimization.
 
-In a non-header-only context, it most likely can't be reduced to zero as no knowledge of a true logger does exist on the level of the `FooLib` cod, an exception would be using the exact "final" type of logger. So the goal might be to minimize the number of virtual calls. Let's see, maybe some logging domain specifics can come to the rescue.
+Here are a few considerations:
 
-Here are some considerations:
-
-*  Log level (severity of a message). If a logger checks message severity before consuming it then it looks like a simple checker routine which can be moved outside of a `log_mesage()` virtual function and be inlined to allow more optimizations e.g. to prevent heavy stuff to execute if it is just known that the resulting message won't be consumed.
-
-* Formatting or message preparation. Let's narrow the case to formatting with [fmt](https://github.com/fmtlib/fmt) library (which tries to make its core into the standard, so maybe it is not such a narrow look as it seems at first). What happens if we do message formatting before `log_mesage()` is called? A call to a non-devirtualizable virtual function puts a limitation on compiler optimizations - it can perform a bunch of optimizations with the local code before the call, and after it or on the other hand, it can be optimized with the stuff inside the call - inside the implementation (I would appreciate if someone would tell me of optimizations to the code with the call in the middle.). So we have a piece of formatting code, and it can be placed inside the implementation of `log_mesage()` virtual function or outside of it. And maybe we can have benefits deciding one of the options?
+* Log level (severity of a message): If a logger checks the severity of a message before processing it, it can be implemented as a separate routine outside of the `log_message()` virtual function.
+  By doing so, it can be inlined, allowing for additional optimizations. For example, heavy operations can be avoided if it is known in advance that the resulting message won't be consumed.
+* Formatting or message preparation: Let's narrow our focus to formatting using the [fmt](https://github.com/fmtlib/fmt) library (which strives to become part of the standard, making it more widely applicable).
+  What happens if we perform message formatting before invoking `log_message()`? When a call to a non-devirtualizable virtual function is present, it can limit compiler optimizations.
+  The compiler can perform optimizations on the code before and after the call, or it can optimize the code inside the call (I would appreciate if someone would tell me of optimizations to the code with the call in the middle).
+  So, we have a piece of formatting code that can be placed inside the `log_message()` virtual function or outside of it. By carefully choosing one of these options, we may gain certain benefits.
 
 ### Handling heavy messages
 
-Log messages are mostly concerned with rendering application data to text, and that has its cost. Here are some points contributing the most to the cost of building a log message:
+
+Log messages often involve the rendering some of the applications data to text, which incurs a certain cost.
+Let's explore the factors that contribute the most to the cost of constructing a log message:
 
 1. Formatting itself - the way the data is being put into text. I am aware of the following approaches:
 
     * Stream-like formatting (e.g. [glog](https://github.com/google/glog), [log4cplus](https://github.com/log4cplus/log4cplus), [Boost.Log](https://www.boost.org/doc/libs/1_78_0/libs/log/doc/html/index.html)).
     * Fmt-like formatting (e.g. [spdlog](https://github.com/gabime/spdlog)). The formatting framework is not necessary must be fmtlib, but the core idea is the same (we can also call it printf-formatting, which has the same idea and historically is the prior one).
-    * Fixed-messages. A set of messages with its input parameters is fixed and known. Logger-lib provides a routine to generate a thing that would accept messages data as a function accepts arguments. It can be a set of classes with member functions or a set of free functions corresponding to log-messages. The internal rendering doesn't affect the user and can be any of the previously mentioned or even don't exist as a text-rendering but be some kind of binary rendering. Though this is not a widely spread approach, and I can't name a modern and publicly available library implementing it. I just find it interesting and deserving at least an honorable mention.
+    * Fixed-messages. A set of messages with its input parameters is fixed and known. Logger-lib provides a routine to generate a thing that would accept messages data as a function accepts arguments.
+      It can be a set of classes with member functions or a set of free functions corresponding to log-messages.
+      The internal rendering doesn't affect the user and can be any of the previously mentioned or even don't exist as a text-rendering but be some kind of binary rendering.
+      Though this is not a widely spread approach, and I can't name a modern and publicly available library implementing it.
+      I just find it interesting and deserving at least an honorable mention.
 
-2. A storage for text. By storage I mean the thing that is capable of keeping a message-data during its construction phase (while you or the lib appending new pieces of text to it) and the thing (it might be a different thing) that serves as a carrier of message-data to whatever consumer provided by logger is. Important characteristics of text storage are:
+2. Text Storage: Text storage refers to the data structure that holds the message data during its construction phase (when new pieces of text are being appended) and serves as the carrier for the message data to the logger's consumer.
+   Key characteristics of text storage include:
+   * Allocation properties.
+   * Movability properties. This affects the efficiency of the carrier function for the storage.
 
-    * Allocation properties.
-    * Movability properties. It affects the efficiency of the carrier function of the storage.
-
-When deciding between different options, one should account for applications messages profile to ensure that trade-offs are acceptable.
-
-Also, it would be great to provide an approach that does the rendering and storage only if it is really necessary, it means the message will be consumed.
+When selecting among different options, it is essential to consider the message profile of your application to ensure that the trade-offs are acceptable.
+Furthermore, it would be advantageous to have an approach that performs rendering and storage only when necessary, meaning that the message will be consumed.
+This optimization helps to avoid unnecessary overhead when logging is not enabled or when messages are not intended to be consumed.
 
 ### Custom formatting
 
-It is also referred to as the formatting of user-defined types.
+Custom formatting, also known as formatting for user-defined types, is not a mandatory feature, as it can be implemented inline within the available formatting approaches (stream-like or fmt-like).
+However, the common practice of having both stream-like and fmt-like formatting providing natural ways to implement custom formatting deserves closer consideration to understand the trade-offs of different approaches.
 
-I can't say it is a mandatory feature. In any case, one can just implement it inlined within the available formatting approach (stream-like or fmt-like). But having stream-like formatting and fmt-like formatting both providing a natural way to implement custom formatting - it's just so common that this practice deserves a closer look to find out what are the tradeoffs for different approaches.
+In the stream-like approach, custom formatting is essentially just an overload for `operator<<(out, obj)` where `out` is a generic output stream provided by the logger library and `obj` is a user-defined C++ type.
 
-In stream-like approach, custom formatting is essentially just an overload for `operator<<(out, obj)`, where `out` is a generic output stream provided by logger library and `obj` is some C++ type.
+For fmt-like approach, please refer to the [fmt documentation on formatting user-defined types](https://fmt.dev/latest/api.html#formatting-user-defined-types).
 
-For fmt-like approach, please, refer to [fmt-doc (formatting user-defined types)](https://fmt.dev/latest/api.html#formatting-user-defined-types).
+In fmt-like formatting, an additional function called `constexpr auto parse(format_parse_context& ctx)` allows you to create options to control the formatting behavior.
+Ignoring formatting options for now, both approaches described above are equivalent.
 
-Fmt-like formatting has an extra function involved called `constexpr auto parse(format_parse_context& ctx)` which makes it possible to create your options to control formatting behavior. Leaving formatting options out of further discussion, both approaches described above are equivalent.
+Essentially, we have a function that operates on references to the output context (a stream in the case of stream-like formatting) and the target user-defined type.
+This statement requires checking because, in fmt-like custom formatting, it involves a struct with member functions.
+However, with intelligent optimizers, there is no practical difference in similar cases. Unused abstractions collapse to nothing, so you don't pay for what you don't use.
+Please refer to the [fact-checking](./checking-fmt-custom-formatting-optimizations.md) for more information.
 
-So basically, we have a function operating over references to output context (for stream-like formatting, it is a stream itself) and target user-defined type. This statement requires checking. Because for fmt it is not strictly correct. In fmt-like custom formatting, it is a struct with member functions that does the trick. But having clever optimizers, it makes no difference in similar cases. So you don't pay for what you don't use and unused abstraction collapses to nothing. Please, refer to the following [fact-checking](./checking-fmt-custom-formatting-optimizations.md).
+When considering the control flow of the message building process and the need to inject a custom formatting routine, we need to think about how this routine fits into the overall message building process.
+One concern is how to transfer the rendering context between the caller and the callee.
 
-So if we consider a control flow of a process of building a message and we want to inject our formatting routine (or call it logic or a piece of code) appending our custom type text rendering we should think of how this routine fits into a given position of the message building process. And I can't name anything besides the following concerns: how to transfer rendering context between the caller and the callee.
-
-It is not a great idea to have a local `std::string` variable and construct a textual image of a custom type to string first and later use it (as strings are well known for any type of formatting). Both stream-like and fmt-like formatting do a great job with this concern by passing output context to the formatting routine. Stream-like formatting offers a shift operator overload approach, and there is not too much space to do it wrong. In fmt case, one should provide template specialization for `fmt::formatter< T >` class or also provide shift operator overload (refer to `<fmt/ostream.h>` for details).
+It is not ideal to have a local `std::string` variable and construct a textual representation of the custom type as a string before using it (since strings are commonly used for formatting any type).
+Both stream-like and fmt-like formatting address this concern by passing the output context to the formatting routine.
+Stream-like formatting offers a shift operator overload approach, which leaves not too much space to do it wrong.
+In the case of fmt, one can provide template specialization for the `fmt::formatter<T>` class or use the shift operator overload (refer to `<fmt/ostream.h>` for details).
 
 ### Separation of logging assisting code from application code
 
-Let me clarify what I mean. It might be required to do heavy stuff (like DB query or a search or a lookup) to give a more informative log message. Looks like not a very big issue. But here is what draws my attention to it. A couple of times I needed to such heavy stuff for trace/debug messages, and these messages are not a subject of the standard application run. And obviously, you don't want to do heavy stuff to assist a message that won't happen, and neither do I. So I had to have a conditional block of code which adds no beauty and eventually have a double-checking of the log level (first to decide whether to do heavy stuff and the second check happened when asking logger to log the message). One way to address this issue is to provide a function-thing (free function, lambda, or any other callable) that can fit into the message construction process and operate over output context, but it still requires a separate boilerplate and abstraction (interestingly, it becomes a reasonable tradeoff in case of multiple reuses). Another way would be using macros machinery to avoid double-checking. However, you would have less freedom in doing normal function-body-type of stuff with this approach as you are trapped in that ostream-operators chain.
+Let me clarify what I mean.
+The separation of logging assisting code from application code can be beneficial in scenarios where heavy operations, such as database queries or lookups/searches, are required to generate informative log messages.
+While this may not seem like a significant issue, it becomes a concern when heavy operations are performed for trace/debug messages that are not part of the standard application run.
+Ideally, you wouldn't want to perform heavy operations for messages that won't occur, and neither do I.
 
-So it would be nice to have a logging assistance stuff trapped in logger scope, e.g. consider this:
+To address this issue, one approach is to provide a conditional block of code - not beautiful and eventually makes a double-checking of the log level (first to decide whether to do heavy stuff and the second check happened when asking logger to log the message).
+One way to address this issue is to provide a function-entity (free function, lambda, or any other callable) that can fit into the message construction process and operate over output context, but it still requires a separate boilerplate and abstraction (interestingly, it becomes a reasonable tradeoff in case of multiple reuses).
+Another approach is to utilize macros to avoid double-checking. However, with this approach, you have less flexibility in performing normal function-like operations since you are constrained within the 
+ostream-operators chain.
+
+Ideally, it would be beneficial to have logging assistance functionality confined within the scope of the logger itself. Consider the following examples:
 
 ```C++
 logger.msg_xxx( /*logger territory*/ );
