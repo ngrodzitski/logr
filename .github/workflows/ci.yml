@@ -1,0 +1,75 @@
+# See runners details:
+# https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#preinstalled-software
+
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  Library-stub:
+    name: "Ubuntu-22.04 (profile: ${{ matrix.conan_profile }}, build_type: ${{ matrix.build_type }})"
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        conan_profile:
+          - ubu-gcc-9
+          - ubu-clang-15
+        build_type:
+          - Release
+          - Debug
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+      - name: Prepare env
+        shell: bash
+        run: |
+          sudo apt-get -qy install \
+            libc++-15-dev libc++abi-15-dev llvm-15
+          pip install --user conan==2.* conan-package-tools
+          conan profile detect
+          conan config install ./conan -sf profiles -tf profiles
+
+      - name: Run conan install
+        shell: bash
+        run: |
+          conan install . \
+             -pr:a ${{ matrix.conan_profile }} \
+             -s:a build_type=${{ matrix.build_type }} \
+             -o:a logr/*:boostlog_backend=False \
+             --build missing \
+             -of _build
+
+      - name: Cmake configure
+        shell: bash
+        run: |
+          source ./_build/conanbuild.sh
+          cmake -B_build . \
+            -DCMAKE_TOOLCHAIN_FILE=_build/conan_toolchain.cmake \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DLOGR_WITH_BOOSTLOG_BACKEND=OFF
+
+      - name: Cmake build
+        shell: bash
+        run: |
+          cmake --build _build -j $(nproc) --verbose
+
+      - name: Run ctest
+        shell: bash
+        run: |
+          ctest -T test --test-dir _build
+
+      - name: Create conan package
+        shell: bash
+        run: |
+          conan create . \
+            -pr:a ${{ matrix.conan_profile }} \
+             -s:a build_type=${{ matrix.build_type }} \
+             -o:a logr/*:boostlog_backend=False \
+            --build missing
+

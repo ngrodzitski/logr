@@ -62,8 +62,8 @@ class LogrConan(ConanFile):
     def _compiler_support_lut(self):
         return {
             "gcc": "9",
-            "clang": "10",
-            "apple-clang": "11",
+            "clang": "11",
+            "apple-clang": "12",
             "Visual Studio": "17",
             "msvc": "191"
         }
@@ -104,7 +104,7 @@ class LogrConan(ConanFile):
 
     def configure(self):
         if self.options.spdlog_backend:
-            self.options["spdlog"].header_only = True
+            # self.options["spdlog"].header_only = True
             # For benchmarks in similar conditions,
             # spdlog should do no exception catching.
             self.options["spdlog"].no_exceptions = True
@@ -143,7 +143,7 @@ class LogrConan(ConanFile):
             "LOGR_BUILD_EXAMPLES"
         ] = not self._is_package_only()
         tc.variables[
-            "LOGR_BUILD_BENCHMARKS"
+            "LOGR_BUILD_BENCHMARK"
         ] = not self._is_package_only()
 
         tc.variables['LOGR_WITH_SPDLOG_BACKEND'] = self.options.spdlog_backend
@@ -168,7 +168,7 @@ class LogrConan(ConanFile):
         cmake = CMake(self)
         if not self._is_package_only():
             cmake.build()
-            cmake.test(output_on_failure=True)
+            cmake.test()
         cmake.install()
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
@@ -190,7 +190,7 @@ class LogrConan(ConanFile):
                 "logr_base",
                 "spdlog::spdlog",
             ]
-        elif self.options.glog_backend:
+        if self.options.glog_backend:
             self.cpp_info.components["logr_glog"].includedirs = []
             self.cpp_info.components["logr_glog"].requires = [
                 "logr_base",

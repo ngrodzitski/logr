@@ -97,7 +97,7 @@ if (LOGR_WITH_SPDLOG_BACKEND)
     target_link_libraries(${TARGET_PROJECT}_spdlog
                           INTERFACE
                           ${TARGET_PROJECT}::${TARGET_PROJECT}_base
-                          spdlog::spdlog_header_only
+                          spdlog::spdlog
     )
     list(APPEND TARGETS_LIST ${TARGET_PROJECT}_spdlog)
 endif ()
