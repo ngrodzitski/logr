@@ -1,6 +1,3 @@
-[submodule "build-scripts"]
-	path = build-scripts
-	url = https://github.com/ngrodzitski/build-scripts.git
 [submodule "cmake-scripts"]
 	path = cmake-scripts
 	url = https://github.com/ngrodzitski/cmake-scripts.git
