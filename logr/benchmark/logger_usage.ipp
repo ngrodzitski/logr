@@ -53,19 +53,19 @@ void do_some_logging_logr( Logger & logger, int x, int y )
 
         logger.info( []() { return "Hello World! [cb]"; } );
 
-        logger.info( [&]( auto & out ) {
+        logger.info( [ & ]( auto & out ) {
             format_to( out, "X is {}! and Y is {}", x, y );
         } );
 
-        logger.info( [&]( auto & out ) {
+        logger.info( [ & ]( auto & out ) {
             format_to( out, "Y is {}! and X is {}", y, x );
         } );
 
-        logger.info( [&x]( auto & out ) {
+        logger.info( [ &x ]( auto & out ) {
             format_to( out, "X is {}! and Y is skipped", x );
         } );
 
-        logger.info( [&y]( auto & out ) {
+        logger.info( [ &y ]( auto & out ) {
             format_to( out, "Y is {}! and X is skipped", y );
         } );
     }
@@ -106,19 +106,19 @@ void do_some_logging_logr( Logger & logger, int x, int y )
 
         logger.info( LOGR_SRC_LOCATION, []() { return "Hello World! [cb]"; } );
 
-        logger.info( LOGR_SRC_LOCATION, [&]( auto & out ) {
+        logger.info( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
             format_to( out, "X is {}! and Y is {}", x, y );
         } );
 
-        logger.info( LOGR_SRC_LOCATION, [&]( auto & out ) {
+        logger.info( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
             format_to( out, "Y is {}! and X is {}", y, x );
         } );
 
-        logger.info( LOGR_SRC_LOCATION, [&x]( auto & out ) {
+        logger.info( LOGR_SRC_LOCATION, [ &x ]( auto & out ) {
             format_to( out, "X is {}! and Y is skipped", x );
         } );
 
-        logger.info( LOGR_SRC_LOCATION, [&y]( auto & out ) {
+        logger.info( LOGR_SRC_LOCATION, [ &y ]( auto & out ) {
             format_to( out, "Y is {}! and X is skipped", y );
         } );
     }

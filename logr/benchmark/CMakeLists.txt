@@ -48,7 +48,7 @@ endif ()
 # devirt_fixup
 add_executable(_bench.devirt_fixup devirt_fixup.bench.cpp)
 target_link_libraries(_bench.devirt_fixup
-                      PRIVATE logr::logr benchmark::benchmark)
+                      PRIVATE logr::logr_base benchmark::benchmark)
 
 target_compile_options(_bench.devirt_fixup PRIVATE ${logr_perf_flags})
 # ===============================================

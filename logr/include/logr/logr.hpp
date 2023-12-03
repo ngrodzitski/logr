@@ -9,15 +9,13 @@
 #include <type_traits>
 #include <atomic>
 
-#include <fmt/format.h>
+#include <fmt/core.h>
 
-#if !defined( FMT_VERSION ) || ( FMT_VERSION < 80000 )
-#    error "Logr requires fmt of version 8.0.0 or later"
+#if !defined( FMT_VERSION ) || ( FMT_VERSION < 100000 )
+#    error "Logr (since 0.7.0) requires fmt of version 10.0.0 or later"
 #endif
 
 #include <fmt/xchar.h>
-
-#include <logr/config.hpp>
 
 namespace logr
 {
@@ -70,6 +68,12 @@ private:
 
 } /* namespace details */
 
+using fmt_compile_string = ::fmt::detail::compile_string;
+
+template < typename CharT, typename... Args >
+using fmt_format_string =
+    ::fmt::basic_format_string< CharT, ::fmt::type_identity_t< Args >... >;
+
 //
 // write_to_ouput_wrapper_t
 //
@@ -92,13 +96,9 @@ private:
 template < typename Buffer >
 class write_to_ouput_wrapper_t
 {
-#if FMT_VERSION < 90000
-    using fmt_compile_string = ::fmt::compile_string;
-#else
-    using fmt_compile_string = ::fmt::detail::compile_string;
-#endif
-
 public:
+    using char_t = typename Buffer::value_type;
+
     /**
      * @brief Init with a given buffer.
      */
@@ -125,37 +125,57 @@ public:
                    std::is_base_of_v< fmt_compile_string, Fmt_String > > >
     auto format_to( Fmt_String fs, Args &&... args )
     {
-        if constexpr( std::is_same_v< typename Buffer::value_type, char > )
+        if constexpr( std::is_same_v< char_t, char > )
         {
+            static_assert( std::is_trivially_copyable_v< decltype( fs ) > );
             return ::fmt::format_to(
                 ::fmt::appender( buf() ), fs, std::forward< Args >( args )... );
         }
         else
         {
-            return ::fmt::format_to(
-                std::back_inserter( buf() ), fs, std::forward< Args >( args )... );
+            return ::fmt::format_to( std::back_inserter( buf() ),
+                                     fmt::wstring_view( fs ),
+                                     std::forward< Args >( args )... );
         }
     }
 
     /**
      * @brief a shortcut function to perform message formating to buffer.
      */
-    template < typename Fmt_String,
-               typename... Args,
-               typename = std::enable_if_t<
-                   !std::is_base_of_v< fmt_compile_string, Fmt_String > > >
-    auto format_to( const Fmt_String & fs, Args &&... args )
+    template < typename... Args >
+    auto format_to( fmt_format_string< char_t, Args... > fs, Args &&... args )
     {
-        if constexpr( std::is_same_v< typename Buffer::value_type, char > )
+        if constexpr( std::is_same_v< char_t, char > )
         {
-            return ::fmt::format_to( ::fmt::appender( buf() ),
-                                     ::fmt::runtime( fs ),
-                                     std::forward< Args >( args )... );
+            static_assert( std::is_trivially_copyable_v< decltype( fs ) > );
+            return ::fmt::format_to(
+                ::fmt::appender( buf() ), fs, std::forward< Args >( args )... );
         }
         else
         {
+            return ::fmt::format_to( std::back_inserter( buf() ),
+                                     fmt::wstring_view( fs ),
+                                     std::forward< Args >( args )... );
+        }
+    }
+
+    /**
+     * @brief a shortcut function to perform message formating to buffer.
+     */
+    template < typename... Args >
+    auto format_to( ::fmt::runtime_format_string< char_t > fs, Args &&... args )
+    {
+        if constexpr( std::is_same_v< char_t, char > )
+        {
+            static_assert( std::is_trivially_copyable_v< decltype( fs ) > );
             return ::fmt::format_to(
-                std::back_inserter( buf() ), fs, std::forward< Args >( args )... );
+                ::fmt::appender( buf() ), fs, std::forward< Args >( args )... );
+        }
+        else
+        {
+            return ::fmt::format_to( std::back_inserter( buf() ),
+                                     fs.str,
+                                     std::forward< Args >( args )... );
         }
     }
 
@@ -164,7 +184,7 @@ private:
 };
 
 /**
- * @brief A helper free-function to start formatting message to buffer.
+ * @name Helper free-functions to start formatting message to buffer.
  *
  * ADL based shortcut function to allow write-to message builder
  * to write in the the following style:
@@ -174,13 +194,46 @@ private:
  * } );
  * @endcode
  */
-template < typename Buffer, typename Fmt_String, typename... Args >
+///@{
+
+/**
+ * @brief a shortcut function to perform message formating to buffer.
+ */
+template < typename Buffer,
+           typename Fmt_String,
+           typename... Args,
+           typename = std::enable_if_t<
+               std::is_base_of_v< fmt_compile_string, Fmt_String > > >
 auto format_to( write_to_ouput_wrapper_t< Buffer > out,
                 Fmt_String fs,
                 Args &&... args )
 {
     return out.format_to( fs, std::forward< Args >( args )... );
 }
+
+/**
+ * @brief a shortcut function to perform message formating to buffer.
+ */
+template < typename Buffer, typename... Args >
+auto format_to( write_to_ouput_wrapper_t< Buffer > out,
+                fmt_format_string< typename Buffer::value_type, Args... > fs,
+                Args &&... args )
+{
+    return out.format_to( fs, std::forward< Args >( args )... );
+}
+
+/**
+ * @brief a shortcut function to perform message formating to buffer.
+ */
+template < typename Buffer, typename... Args >
+auto format_to( write_to_ouput_wrapper_t< Buffer > out,
+                ::fmt::runtime_format_string< typename Buffer::value_type > fs,
+                Args &&... args )
+{
+    return out.format_to( fs, std::forward< Args >( args )... );
+}
+
+///@}
 
 //
 // log_level

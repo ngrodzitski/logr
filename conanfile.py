@@ -1,25 +1,49 @@
-from conans import ConanFile, CMake, tools
-from conans.errors import ConanInvalidConfiguration
+from conan import ConanFile
+from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
+from conan.tools.cmake import CMake, CMakeToolchain, CMakeDeps, cmake_layout
+from conan.tools.files import rmdir
+from conan.tools.scm import Version
+import os, sys, re
+
+required_conan_version = ">=1.53.0"
+
 
 class LogrConan(ConanFile):
+    def set_version(self):
+        version_file_path = os.path.join(
+            self.recipe_folder,
+            "logr/include/logr/version.hpp"
+        )
+        with open(version_file_path, 'r') as file:
+            content = file.read()
+            major_match = re.search(r'VERSION_MAJOR\s+(\d+)ull', content)
+            minor_match = re.search(r'VERSION_MINOR\s+(\d+)ull', content)
+            patch_match = re.search(r'VERSION_PATCH\s+(\d+)ull', content)
+
+            if major_match and minor_match and patch_match:
+                major = int(major_match.group(1))
+                minor = int(minor_match.group(1))
+                patch = int(patch_match.group(1))
+
+                self.version = f"{major}.{minor}.{patch}"
+            else:
+                raise ValueError(f"cannot detect version from {version_file_path}")
+
     name = "logr"
-    version = "0.6.0"
     license = "BSD 3-Clause License"
     author = "Nicolai Grodzitski <utromvecherom@gmail.com>"
     url = "https://github.com/ngrodzitski/logr"
     description = "Logger frontend substitution for spdlog, glog, etc for server/desktop applications"
     topics = ("logger", "development", "util", "utils")
 
-    generators = "cmake_find_package", "cmake"
     settings = "os", "compiler", "build_type", "arch"
 
-    build_policy = "missing"
-
-    # If CI wants test then consider building of examples and benchmarks
-    # is a kind of test.
-    logr_build_test_and_others = tools.get_env("CONAN_RUN_TESTS", False)
-
-    exports_sources = "logr/*", "CMakeLists.txt", "cmake-scripts/*", "LICENSE.txt"
+    exports_sources = [
+        "CMakeLists.txt",
+        "logr/*",
+        "cmake-scripts/*"
+    ]
 
     options = { 'spdlog_backend' : [True, False],
                 'glog_backend' : [True, False],
@@ -31,101 +55,156 @@ class LogrConan(ConanFile):
                         'log4cplus_backend': True,
                         'boostlog_backend' : True }
 
-    _cmake = None
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.logr_build_test_and_others:
-            self.exports_sources += "tests/*", "examples/*", "benchmarks/*"
+    no_copy_source = False
+    build_policy = "missing"
 
-    def are_newer_deps(self):
-        compiler = str(self.settings.compiler)
-        version = tools.Version(self.settings.compiler.version)
+    def _compiler_support_lut(self):
+        return {
+            "gcc": "9",
+            "clang": "10",
+            "apple-clang": "11",
+            "Visual Studio": "17",
+            "msvc": "191"
+        }
 
-        return (compiler == "gcc" and version > "10") or (compiler == "clang" and version > "11")
+    # This hint tells that this conanfile acts as
+    # a conanfile for a package, which implies
+    # it is responsible only for library itself.
+    # Used to eliminate tests-related stuff (gtest, building tests)
+    ACT_AS_PACKAGE_ONLY_CONANFILE = False
+
+    def _is_package_only(self):
+        return (
+            self.ACT_AS_PACKAGE_ONLY_CONANFILE
+            # The environment variable below can be used
+            # to run conan create localy (used for debugging issues).
+            or os.environ.get("LOGR_CONAN_PACKAGING") == "ON"
+        )
 
     def requirements(self):
-        self.requires( "fmt/9.1.0" )
+        self.requires( "fmt/10.1.1" )
 
         if self.options.spdlog_backend:
-            self.requires( "spdlog/1.11.0" )
-            self.options["spdlog"].header_only = True
-
-            # For benchmarks in similar conditions,
-            # spdlog should do no exception catching.
-            self.options["spdlog"].no_exceptions = True
+            self.requires( "spdlog/1.12.0" )
 
         if self.options.glog_backend:
             self.requires( "glog/0.6.0" )
 
         if self.options.log4cplus_backend:
-            self.requires( "log4cplus/2.0.5" )
-            self.options["log4cplus"].unicode = False
+            self.requires( "log4cplus/2.1.0" )
 
         if self.options.boostlog_backend:
-            self.requires( "boost/1.78.0" if self.are_newer_deps() else "boost/1.71.0")
+            self.requires( "boost/1.83.0")
 
     def build_requirements(self):
-        self.build_requires( "gtest/cci.20210126" if self.are_newer_deps() else "gtest/1.10.0")
-        self.build_requires( "benchmark/1.7.1" )
+        if not self._is_package_only():
+            self.test_requires("gtest/1.14.0")
+            self.test_requires("benchmark/1.8.3")
 
     def configure(self):
+        if self.options.spdlog_backend:
+            self.options["spdlog"].header_only = True
+            # For benchmarks in similar conditions,
+            # spdlog should do no exception catching.
+            self.options["spdlog"].no_exceptions = True
+        if self.options.log4cplus_backend:
+            self.options["log4cplus"].unicode = False
+
+    def validate(self):
         minimal_cpp_standard = "17"
-        if self.settings.compiler.cppstd:
-            tools.check_min_cppstd(self, minimal_cpp_standard)
-        minimal_version = {
-            "gcc": "10",
-            "clang": "11",
-            "apple-clang": "12",
-            "Visual Studio": "19"
-        }
+        if self.settings.compiler.get_safe("cppstd"):
+            check_min_cppstd(self, minimal_cpp_standard)
+        minimal_version = self._compiler_support_lut()
+
         compiler = str(self.settings.compiler)
         if compiler not in minimal_version:
-            self.output.warn(
+            self.output.warning(
                 "%s recipe lacks information about the %s compiler standard version support" % (self.name, compiler))
-            self.output.warn(
+            self.output.warning(
                 "%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
             return
 
-        version = tools.Version(self.settings.compiler.version)
+        version = Version(self.settings.compiler.version)
         if version < minimal_version[compiler]:
             raise ConanInvalidConfiguration("%s requires a compiler that supports at least C++%s" % (self.name, minimal_cpp_standard))
 
-    def _configure_cmake(self):
-        if self._cmake:
-            return self._cmake
+    def layout(self):
+        cmake_layout(self, src_folder=".", build_folder=".")
+        self.folders.generators = ""
 
-        self._cmake = CMake(self)
-        self._cmake.definitions['LOGR_WITH_SPDLOG_BACKEND'] = self.options.spdlog_backend
-        self._cmake.definitions['LOGR_WITH_GLOG_BACKEND'] = self.options.glog_backend
-        self._cmake.definitions['LOGR_WITH_LOG4CPLUS_BACKEND'] = self.options.log4cplus_backend
-        self._cmake.definitions['LOGR_WITH_BOOSTLOG_BACKEND'] = self.options.boostlog_backend
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["LOGR_INSTALL"] = True
+        tc.variables[
+            "LOGR_BUILD_TESTS"
+        ] = not self._is_package_only()
+        tc.variables[
+            "LOGR_BUILD_EXAMPLES"
+        ] = not self._is_package_only()
+        tc.variables[
+            "LOGR_BUILD_BENCHMARKS"
+        ] = not self._is_package_only()
 
-        self._cmake.definitions['LOGR_BUILD_TESTS'] = self.logr_build_test_and_others
-        self._cmake.definitions['LOGR_BUILD_EXAMPLES'] = self.logr_build_test_and_others
-        self._cmake.definitions['LOGR_BUILD_BENCHMARKS'] = self.logr_build_test_and_others
+        tc.variables['LOGR_WITH_SPDLOG_BACKEND'] = self.options.spdlog_backend
+        tc.variables['LOGR_WITH_GLOG_BACKEND'] = self.options.glog_backend
+        tc.variables['LOGR_WITH_LOG4CPLUS_BACKEND'] = self.options.log4cplus_backend
+        tc.variables['LOGR_WITH_BOOSTLOG_BACKEND'] = self.options.boostlog_backend
 
-        if self.settings.compiler == "gcc" or self.settings.compiler == "clang":
-            self._cmake.definitions['EXPLICIT_LIBCXX'] = self.settings.compiler.libcxx
+        tc.generate()
 
-        if self.settings.compiler == "Visual Studio":
-            rt = self.settings.compiler.runtime
-            self._cmake.definitions['EXPLICIT_STATIC_RUNTIME'] = (rt == "MT" or rt == "MTd")
+        cmake_deps = CMakeDeps(self)
+        cmake_deps.generate()
 
-        self._cmake.configure()
-        return self._cmake
+    def package_id(self):
+        self.info.clear()
+
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure(build_script_folder=self.source_folder)
+        cmake.build()
 
     def package(self):
-        cmake = self._configure_cmake()
-        self.output.info(cmake.definitions)
-        if self.logr_build_test_and_others:
-            # If test are enabled build project and run tests.
+        cmake = CMake(self)
+        if not self._is_package_only():
             cmake.build()
             cmake.test(output_on_failure=True)
         cmake.install()
-
-    def package_id(self):
-        self.info.header_only()
+        rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
 
     def package_info(self):
-        self.info.header_only()
+        self.cpp_info.bindirs = []
+        self.cpp_info.frameworkdirs = []
+        self.cpp_info.libdirs = []
+        self.cpp_info.set_property("cmake_file_name", "logr")
+
+        self.cpp_info.names["cmake_find_package"] = "logr"
+        self.cpp_info.names["cmake_find_package_multi"] = "logr"
+
+        self.cpp_info.components["logr_base"].includedirs = ["include"]
+        self.cpp_info.components["logr_base"].requires = ["fmt::fmt"]
+
+        if self.options.spdlog_backend:
+            self.cpp_info.components["logr_spdlog"].includedirs = []
+            self.cpp_info.components["logr_spdlog"].requires = [
+                "logr_base",
+                "spdlog::spdlog",
+            ]
+        elif self.options.glog_backend:
+            self.cpp_info.components["logr_glog"].includedirs = []
+            self.cpp_info.components["logr_glog"].requires = [
+                "logr_base",
+                "glog::glog",
+            ]
+        if self.options.log4cplus_backend:
+            self.cpp_info.components["logr_log4cplus"].includedirs = []
+            self.cpp_info.components["logr_log4cplus"].requires = [
+                "logr_base",
+                "log4cplus::log4cplus",
+            ]
+        if self.options.boostlog_backend:
+            self.cpp_info.components["logr_boostlog"].includedirs = []
+            self.cpp_info.components["logr_boostlog"].requires = [
+                "logr_base",
+                "boost::log",
+            ]

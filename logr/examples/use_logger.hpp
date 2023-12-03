@@ -31,6 +31,20 @@ void use_logger( Logger & logger )
         format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
 
+    logger.trace( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   FMT_STRING( "Hello {}! [{}]" ),
+                   "World",
+                   "cb with explicit out and FMT_STRING" );
+    } );
+
+    logger.trace( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   fmt::runtime( "Hello {}! [{}]" ),
+                   "World",
+                   "cb with explicit out and runtime-string" );
+    } );
+
     logger.debug( "Hello World! [raw message]" );
     logger.debug( LOGR_SRC_LOCATION, "Hello World! [raw message]" );
 
@@ -43,6 +57,19 @@ void use_logger( Logger & logger )
 
     logger.debug( LOGR_SRC_LOCATION, []( auto out ) {
         format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    } );
+    logger.debug( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   FMT_STRING( "Hello {}! [{}]" ),
+                   "World",
+                   "cb with explicit out and FMT_STRING" );
+    } );
+
+    logger.debug( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   fmt::runtime( "Hello {}! [{}]" ),
+                   "World",
+                   "cb with explicit out and runtime-string" );
     } );
 
     logger.info( "Hello World! [raw message]" );
@@ -58,6 +85,19 @@ void use_logger( Logger & logger )
     logger.info( LOGR_SRC_LOCATION, []( auto out ) {
         format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
+    logger.info( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   FMT_STRING( "Hello {}! [{}]" ),
+                   "World",
+                   "cb with explicit out and FMT_STRING" );
+    } );
+
+    logger.info( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   fmt::runtime( "Hello {}! [{}]" ),
+                   "World",
+                   "cb with explicit out and runtime-string" );
+    } );
 
     logger.warn( "Hello World! [raw message]" );
     logger.warn( LOGR_SRC_LOCATION, "Hello World! [raw message]" );
@@ -71,6 +111,19 @@ void use_logger( Logger & logger )
 
     logger.warn( LOGR_SRC_LOCATION, []( auto out ) {
         format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
+    } );
+    logger.warn( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   FMT_STRING( "Hello {}! [{}]" ),
+                   "World",
+                   "cb with explicit out and FMT_STRING" );
+    } );
+
+    logger.warn( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   fmt::runtime( "Hello {}! [{}]" ),
+                   "World",
+                   "cb with explicit out and runtime-string" );
     } );
 
     logger.error( "Hello World! [raw message]" );
@@ -86,6 +139,19 @@ void use_logger( Logger & logger )
     logger.error( LOGR_SRC_LOCATION, []( auto out ) {
         format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
+    logger.error( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   FMT_STRING( "Hello {}! [{}]" ),
+                   "World",
+                   "cb with explicit out and FMT_STRING" );
+    } );
+
+    logger.error( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   fmt::runtime( "Hello {}! [{}]" ),
+                   "World",
+                   "cb with explicit out and runtime-string" );
+    } );
 
     logger.critical( "Hello World! [raw message]" );
     logger.critical( LOGR_SRC_LOCATION, "Hello World! [raw message]" );
@@ -100,6 +166,19 @@ void use_logger( Logger & logger )
     logger.critical( LOGR_SRC_LOCATION, []( auto out ) {
         format_to( out, "Hello {}! [{}]", "World", "cb with explicit out" );
     } );
+    logger.critical( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   FMT_STRING( "Hello {}! [{}]" ),
+                   "World",
+                   "cb with explicit out and FMT_STRING" );
+    } );
+
+    logger.critical( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   fmt::runtime( "Hello {}! [{}]" ),
+                   "World",
+                   "cb with explicit out and runtime-string" );
+    } );
 
     logger.flush();
 }
@@ -113,18 +192,38 @@ template < typename Logger >
 void use_wlogger( Logger & logger )
 {
     logger.trace( L"Привет Мир! [raw message]" );
+    logger.flush();
     logger.trace( LOGR_SRC_LOCATION, L"Привет Мир! [raw message]" );
+    logger.flush();
 
     logger.trace( []() { return L"Привет Мир! [cb]"; } );
+    logger.flush();
     logger.trace( LOGR_SRC_LOCATION, []() { return L"Привет Мир! [cb]"; } );
+    logger.flush();
 
     logger.trace( []( auto out ) {
         format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
+    logger.flush();
 
     logger.trace( LOGR_SRC_LOCATION, []( auto out ) {
         format_to( out, L"Привет {}! [{}]", L"Мир", L"cb with explicit out" );
     } );
+    logger.flush();
+    logger.trace( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   FMT_STRING( L"Привет {}! [{}]" ),
+                   L"Мир",
+                   L"cb with explicit out FMT_STRING" );
+    } );
+    logger.flush();
+    logger.trace( LOGR_SRC_LOCATION, []( auto out ) {
+        format_to( out,
+                   fmt::runtime( L"Привет {}! [{}]" ),
+                   L"Мир",
+                   L"cb with explicit out runtime-string" );
+    } );
+    logger.flush();
 
     logger.debug( L"Привет Мир! [raw message]" );
     logger.debug( LOGR_SRC_LOCATION, L"Привет Мир! [raw message]" );

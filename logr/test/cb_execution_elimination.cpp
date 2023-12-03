@@ -31,118 +31,184 @@ std::tuple< bool, bool, bool, bool, bool, bool > do_log_for_all_log_levels(
     bool error_cb_was_called{ false };
     bool critical_cb_was_called{ false };
 
-    logger.trace( [&]() {
+    logger.trace( [ & ]() {
         trace_cb_was_called = true;
         return "test [cb]";
     } );
-    logger.trace( LOGR_SRC_LOCATION, [&]() {
+    logger.trace( LOGR_SRC_LOCATION, [ & ]() {
         trace_cb_was_called = true;
         return "test [cb]";
     } );
 
-    logger.trace( [&]( auto & out ) {
-        trace_cb_was_called = true;
-        format_to( out, "{} [{}]", "test", "cb with explicit out" );
-    } );
-
-    logger.trace( LOGR_SRC_LOCATION, [&]( auto & out ) {
+    logger.trace( [ & ]( auto & out ) {
         trace_cb_was_called = true;
         format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
-    logger.debug( [&]() {
+    logger.trace( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
+        trace_cb_was_called = true;
+        format_to( out, "{} [{}]", "test", "cb with explicit out" );
+    } );
+
+    logger.trace( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
+        trace_cb_was_called = true;
+        format_to( out, FMT_STRING( "{} [{}]" ), "test", "cb with explicit out" );
+    } );
+
+    logger.trace( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
+        trace_cb_was_called = true;
+        format_to(
+            out, ::fmt::runtime( "{} [{}]" ), "test", "cb with explicit out" );
+    } );
+
+    logger.debug( [ & ]() {
         debug_cb_was_called = true;
         return "test [cb]";
     } );
-    logger.debug( LOGR_SRC_LOCATION, [&]() {
+    logger.debug( LOGR_SRC_LOCATION, [ & ]() {
         debug_cb_was_called = true;
         return "test [cb]";
     } );
 
-    logger.debug( [&]( auto & out ) {
+    logger.debug( [ & ]( auto & out ) {
         debug_cb_was_called = true;
         format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
-    logger.debug( LOGR_SRC_LOCATION, [&]( auto & out ) {
+    logger.debug( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
         debug_cb_was_called = true;
         format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
-    logger.info( [&]() {
+    logger.debug( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
+        debug_cb_was_called = true;
+        format_to( out, FMT_STRING( "{} [{}]" ), "test", "cb with explicit out" );
+    } );
+
+    logger.debug( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
+        debug_cb_was_called = true;
+        format_to(
+            out, ::fmt::runtime( "{} [{}]" ), "test", "cb with explicit out" );
+    } );
+
+    logger.info( [ & ]() {
         info_cb_was_called = true;
         return "test [cb]";
     } );
-    logger.info( LOGR_SRC_LOCATION, [&]() {
+    logger.info( LOGR_SRC_LOCATION, [ & ]() {
         info_cb_was_called = true;
         return "test [cb]";
     } );
 
-    logger.info( [&]( auto & out ) {
+    logger.info( [ & ]( auto & out ) {
         info_cb_was_called = true;
         format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
-    logger.info( LOGR_SRC_LOCATION, [&]( auto & out ) {
+    logger.info( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
         info_cb_was_called = true;
         format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
-    logger.warn( [&]() {
+    logger.info( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
+        info_cb_was_called = true;
+        format_to( out, FMT_STRING( "{} [{}]" ), "test", "cb with explicit out" );
+    } );
+
+    logger.info( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
+        info_cb_was_called = true;
+        format_to(
+            out, ::fmt::runtime( "{} [{}]" ), "test", "cb with explicit out" );
+    } );
+
+    logger.warn( [ & ]() {
         warn_cb_was_called = true;
         return "test [cb]";
     } );
-    logger.warn( LOGR_SRC_LOCATION, [&]() {
+    logger.warn( LOGR_SRC_LOCATION, [ & ]() {
         warn_cb_was_called = true;
         return "test [cb]";
     } );
 
-    logger.warn( [&]( auto & out ) {
+    logger.warn( [ & ]( auto & out ) {
         warn_cb_was_called = true;
         format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
-    logger.warn( LOGR_SRC_LOCATION, [&]( auto & out ) {
+    logger.warn( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
         warn_cb_was_called = true;
         format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
-    logger.error( [&]() {
+    logger.warn( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
+        warn_cb_was_called = true;
+        format_to( out, FMT_STRING( "{} [{}]" ), "test", "cb with explicit out" );
+    } );
+
+    logger.warn( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
+        warn_cb_was_called = true;
+        format_to(
+            out, ::fmt::runtime( "{} [{}]" ), "test", "cb with explicit out" );
+    } );
+
+    logger.error( [ & ]() {
         error_cb_was_called = true;
         return "test [cb]";
     } );
-    logger.error( LOGR_SRC_LOCATION, [&]() {
+    logger.error( LOGR_SRC_LOCATION, [ & ]() {
         error_cb_was_called = true;
         return "test [cb]";
     } );
 
-    logger.error( [&]( auto & out ) {
+    logger.error( [ & ]( auto & out ) {
         error_cb_was_called = true;
         format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
-    logger.error( LOGR_SRC_LOCATION, [&]( auto & out ) {
+    logger.error( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
         error_cb_was_called = true;
         format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
-    logger.critical( [&]() {
+    logger.error( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
+        error_cb_was_called = true;
+        format_to( out, FMT_STRING( "{} [{}]" ), "test", "cb with explicit out" );
+    } );
+
+    logger.error( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
+        error_cb_was_called = true;
+        format_to(
+            out, ::fmt::runtime( "{} [{}]" ), "test", "cb with explicit out" );
+    } );
+
+    logger.critical( [ & ]() {
         critical_cb_was_called = true;
         return "test [cb]";
     } );
-    logger.critical( LOGR_SRC_LOCATION, [&]() {
+    logger.critical( LOGR_SRC_LOCATION, [ & ]() {
         critical_cb_was_called = true;
         return "test [cb]";
     } );
 
-    logger.critical( [&]( auto & out ) {
+    logger.critical( [ & ]( auto & out ) {
         critical_cb_was_called = true;
         format_to( out, "{} [{}]", "test", "cb with explicit out" );
     } );
 
-    logger.critical( LOGR_SRC_LOCATION, [&]( auto & out ) {
+    logger.critical( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
         critical_cb_was_called = true;
         format_to( out, "{} [{}]", "test", "cb with explicit out" );
+    } );
+
+    logger.critical( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
+        critical_cb_was_called = true;
+        format_to( out, FMT_STRING( "{} [{}]" ), "test", "cb with explicit out" );
+    } );
+
+    logger.critical( LOGR_SRC_LOCATION, [ & ]( auto & out ) {
+        critical_cb_was_called = true;
+        format_to(
+            out, ::fmt::runtime( "{} [{}]" ), "test", "cb with explicit out" );
     } );
 
     return std::tie( trace_cb_was_called,

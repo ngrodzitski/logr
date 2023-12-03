@@ -2,10 +2,14 @@ set(logr_test_prj _utest.logr)
 
 project(${logr_test_prj})
 
-append_src_files(
-    TARGET unittests_srcfiles
-    GLOB_PATTERN
-        *.cpp )
+list(APPEND  unittests_srcfiles
+     cb_execution_elimination.cpp
+     include_is_fine.cpp
+     level_filtering.cpp
+     levels_routing.cpp
+     root_logger_type.cpp
+     writeto_msg_builder_out_usages.cpp
+)
 
 add_executable(${logr_test_prj} ${unittests_srcfiles})
 
@@ -14,7 +18,7 @@ if (WIN32)
 endif ()
 
 target_link_libraries(${logr_test_prj} PRIVATE GTest::gmock_main
-                                               logr::logr)
+                                               logr::logr_base)
 
 include(GoogleTest)
 

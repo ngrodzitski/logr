@@ -1,0 +1,23 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+set(LOGR_WITH_SPDLOG_BACKEND @LOGR_WITH_SPDLOG_BACKEND@)
+set(LOGR_WITH_GLOG_BACKEND @LOGR_WITH_GLOG_BACKEND@)
+set(LOGR_WITH_LOG4CPLUS_BACKEND @LOGR_WITH_LOG4CPLUS_BACKEND@)
+set(LOGR_WITH_BOOSTLOG_BACKEND @LOGR_WITH_BOOSTLOG_BACKEND@)
+
+find_dependency(fmt)
+
+if (LOGR_WITH_SPDLOG_BACKEND)
+    find_dependency(spdlog)
+endif ()
+if (LOGR_WITH_GLOG_BACKEND)
+    find_dependency(glog)
+endif ()
+if (LOGR_WITH_LOG4CPLUS_BACKEND)
+    find_dependency(log4cplus)
+endif ()
+if (LOGR_WITH_BOOSTLOG_BACKEND)
+    find_dependency(Boost)
+endif ()

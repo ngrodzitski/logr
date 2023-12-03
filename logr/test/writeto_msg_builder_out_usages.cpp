@@ -24,33 +24,22 @@ TEST( LogrWriteToMsgBuilderStyles, OutByValue )  // NOLINT
 
     const auto expected_msg = std::string_view{ "Test message 42 \"QWERTY\"" };
 
-    EXPECT_CALL(
-        logger,
-        log_message_trace( expected_msg ) );
-    EXPECT_CALL(
-        logger,
-        log_message_trace( expected_msg ) );
-    EXPECT_CALL(
-        logger,
-        log_message_trace( expected_msg ) );
-    EXPECT_CALL(
-        logger,
-        log_message_trace( _, expected_msg ) );
-    EXPECT_CALL(
-        logger,
-        log_message_trace( _, expected_msg ) );
-    EXPECT_CALL(
-        logger,
-        log_message_trace( _, expected_msg ) );
+    EXPECT_CALL( logger, log_message_trace( expected_msg ) );
+    EXPECT_CALL( logger, log_message_trace( expected_msg ) );
+    EXPECT_CALL( logger, log_message_trace( expected_msg ) );
+    EXPECT_CALL( logger, log_message_trace( _, expected_msg ) );
+    EXPECT_CALL( logger, log_message_trace( _, expected_msg ) );
+    EXPECT_CALL( logger, log_message_trace( _, expected_msg ) );
 
-    logger.trace( [x, &s]( auto out ) {
+    logger.trace( [ x, &s ]( auto out ) {
         format_to( out, "Test message {} \"{}\"", x, s );
     } );
 
-    logger.trace(
-        [x, &s]( auto out ) { out.format_to( "Test message {} \"{}\"", x, s ); } );
+    logger.trace( [ x, &s ]( auto out ) {
+        out.format_to( "Test message {} \"{}\"", x, s );
+    } );
 
-    logger.trace( [x, &s]( auto out ) {
+    logger.trace( [ x, &s ]( auto out ) {
 #if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
         ::fmt::format_to(
             ::fmt::appender( out.buf() ), "Test message {} \"{}\"", x, s );
@@ -59,15 +48,15 @@ TEST( LogrWriteToMsgBuilderStyles, OutByValue )  // NOLINT
 #endif
     } );
 
-    logger.trace( LOGR_SRC_LOCATION, [x, &s]( auto out ) {
+    logger.trace( LOGR_SRC_LOCATION, [ x, &s ]( auto out ) {
         format_to( out, "Test message {} \"{}\"", x, s );
     } );
 
-    logger.trace( LOGR_SRC_LOCATION, [x, &s]( auto out ) {
+    logger.trace( LOGR_SRC_LOCATION, [ x, &s ]( auto out ) {
         out.format_to( "Test message {} \"{}\"", x, s );
     } );
 
-    logger.trace( LOGR_SRC_LOCATION, [x, &s]( auto out ) {
+    logger.trace( LOGR_SRC_LOCATION, [ x, &s ]( auto out ) {
 #if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
         ::fmt::format_to(
             ::fmt::appender( out.buf() ), "Test message {} \"{}\"", x, s );
@@ -88,34 +77,22 @@ TEST( LogrWriteToMsgBuilderStyles, OutByReference )  // NOLINT
 
     const auto expected_msg = std::string_view{ "Test message 42 \"QWERTY\"" };
 
-    EXPECT_CALL(
-        logger,
-        log_message_trace( expected_msg ) );
-    EXPECT_CALL(
-        logger,
-        log_message_trace( expected_msg ) );
-    EXPECT_CALL(
-        logger,
-        log_message_trace( expected_msg ) );
-    EXPECT_CALL(
-        logger,
-        log_message_trace( _, expected_msg ) );
-    EXPECT_CALL(
-        logger,
-        log_message_trace( _, expected_msg ) );
-    EXPECT_CALL(
-        logger,
-        log_message_trace( _, expected_msg ) );
+    EXPECT_CALL( logger, log_message_trace( expected_msg ) );
+    EXPECT_CALL( logger, log_message_trace( expected_msg ) );
+    EXPECT_CALL( logger, log_message_trace( expected_msg ) );
+    EXPECT_CALL( logger, log_message_trace( _, expected_msg ) );
+    EXPECT_CALL( logger, log_message_trace( _, expected_msg ) );
+    EXPECT_CALL( logger, log_message_trace( _, expected_msg ) );
 
-    logger.trace( [x, &s]( auto & out ) {
+    logger.trace( [ x, &s ]( auto & out ) {
         format_to( out, "Test message {} \"{}\"", x, s );
     } );
 
-    logger.trace( [x, &s]( auto & out ) {
+    logger.trace( [ x, &s ]( auto & out ) {
         out.format_to( "Test message {} \"{}\"", x, s );
     } );
 
-    logger.trace( [x, &s]( auto & out ) {
+    logger.trace( [ x, &s ]( auto & out ) {
 #if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
         ::fmt::format_to(
             ::fmt::appender( out.buf() ), "Test message {} \"{}\"", x, s );
@@ -124,15 +101,15 @@ TEST( LogrWriteToMsgBuilderStyles, OutByReference )  // NOLINT
 #endif
     } );
 
-    logger.trace( LOGR_SRC_LOCATION, [x, &s]( auto & out ) {
+    logger.trace( LOGR_SRC_LOCATION, [ x, &s ]( auto & out ) {
         format_to( out, "Test message {} \"{}\"", x, s );
     } );
 
-    logger.trace( LOGR_SRC_LOCATION, [x, &s]( auto & out ) {
+    logger.trace( LOGR_SRC_LOCATION, [ x, &s ]( auto & out ) {
         out.format_to( "Test message {} \"{}\"", x, s );
     } );
 
-    logger.trace( LOGR_SRC_LOCATION, [x, &s]( auto & out ) {
+    logger.trace( LOGR_SRC_LOCATION, [ x, &s ]( auto & out ) {
 #if defined( FMT_VERSION ) && ( FMT_VERSION > 80000 )
         ::fmt::format_to(
             ::fmt::appender( out.buf() ), "Test message {} \"{}\"", x, s );

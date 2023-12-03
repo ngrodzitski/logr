@@ -27,6 +27,12 @@ class noop_spdlog_sink_t final : public spdlog::sinks::base_sink< Mutex >
 protected:
     void sink_it_( const spdlog::details::log_msg & msg ) final
     {
+        // FIXME:
+        // Warning:
+        // ```
+        // DoNotOptimize is deprecated: The const-ref version of this method
+        // can permit undesired compiler optimizations in benchmarks
+        // ```
         benchmark::DoNotOptimize( msg );
     }
 
