@@ -92,7 +92,7 @@ conan install . -pr:a vs2022 --build missing -of _build
 _build\conanbuild.bat
 cmake -B_build . -DCMAKE_TOOLCHAIN_FILE="_build/conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release
 
-cmake --build _build
+cmake --build _build --config Release
 ctest -T test --test-dir _build
 ```
 
