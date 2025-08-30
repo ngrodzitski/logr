@@ -10,7 +10,7 @@
     ( ( ( major ) << 16UL ) + ( ( minor ) << 8UL ) + ( ( patch ) << 0UL ))
 
 #define LOGR_VERSION_MAJOR 0ull
-#define LOGR_VERSION_MINOR 7ull
+#define LOGR_VERSION_MINOR 8ull
 #define LOGR_VERSION_PATCH 0ull
 
 #define LOGR_VERSION \

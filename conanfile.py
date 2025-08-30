@@ -83,24 +83,24 @@ class LogrConan(ConanFile):
         )
 
     def requirements(self):
-        self.requires( "fmt/10.1.1" )
+        self.requires( "fmt/11.2.0" )
 
         if self.options.spdlog_backend:
-            self.requires( "spdlog/1.12.0" )
+            self.requires( "spdlog/1.15.3" )
 
         if self.options.glog_backend:
-            self.requires( "glog/0.6.0" )
+            self.requires( "glog/0.7.1" )
 
         if self.options.log4cplus_backend:
-            self.requires( "log4cplus/2.1.0" )
+            self.requires( "log4cplus/2.1.2" )
 
         if self.options.boostlog_backend:
             self.requires( "boost/1.83.0")
 
     def build_requirements(self):
         if not self._is_package_only():
-            self.test_requires("gtest/1.14.0")
-            self.test_requires("benchmark/1.8.3")
+            self.test_requires("gtest/1.17.0")
+            self.test_requires("benchmark/1.9.4")
 
     def configure(self):
         if self.options.spdlog_backend:
