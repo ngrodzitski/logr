@@ -66,13 +66,35 @@ private:
     message_buffer_t m_message;
 };
 
+//
+// format_string_definition_helper_t
+//
+
+template < typename CharT >
+struct format_string_definition_helper_t
+{
+    // Left empty for not supported character types.
+};
+
+template <>
+struct format_string_definition_helper_t< char >
+{
+    template < typename... Args >
+    using format_string = fmt::format_string< Args... >;
+};
+
+template <>
+struct format_string_definition_helper_t< wchar_t >
+{
+    template < typename... Args >
+    using format_string = fmt::wformat_string< Args... >;
+};
+
 } /* namespace details */
 
-using fmt_compile_string = ::fmt::detail::compile_string;
-
 template < typename CharT, typename... Args >
-using fmt_format_string =
-    ::fmt::basic_format_string< CharT, ::fmt::type_identity_t< Args >... >;
+using fmt_format_string = details::format_string_definition_helper_t<
+    CharT >::template format_string< Args... >;
 
 //
 // write_to_ouput_wrapper_t
@@ -119,29 +141,6 @@ public:
     /**
      * @brief a shortcut function to perform message formating to buffer.
      */
-    template < typename Fmt_String,
-               typename... Args,
-               typename = std::enable_if_t<
-                   std::is_base_of_v< fmt_compile_string, Fmt_String > > >
-    auto format_to( Fmt_String fs, Args &&... args )
-    {
-        if constexpr( std::is_same_v< char_t, char > )
-        {
-            static_assert( std::is_trivially_copyable_v< decltype( fs ) > );
-            return ::fmt::format_to(
-                ::fmt::appender( buf() ), fs, std::forward< Args >( args )... );
-        }
-        else
-        {
-            return ::fmt::format_to( std::back_inserter( buf() ),
-                                     fmt::wstring_view( fs ),
-                                     std::forward< Args >( args )... );
-        }
-    }
-
-    /**
-     * @brief a shortcut function to perform message formating to buffer.
-     */
     template < typename... Args >
     auto format_to( fmt_format_string< char_t, Args... > fs, Args &&... args )
     {
@@ -153,9 +152,8 @@ public:
         }
         else
         {
-            return ::fmt::format_to( std::back_inserter( buf() ),
-                                     fmt::wstring_view( fs ),
-                                     std::forward< Args >( args )... );
+            return ::fmt::format_to(
+                std::back_inserter( buf() ), fs, std::forward< Args >( args )... );
         }
     }
 
@@ -173,9 +171,8 @@ public:
         }
         else
         {
-            return ::fmt::format_to( std::back_inserter( buf() ),
-                                     fs.str,
-                                     std::forward< Args >( args )... );
+            return ::fmt::format_to(
+                std::back_inserter( buf() ), fs, std::forward< Args >( args )... );
         }
     }
 
@@ -195,21 +192,6 @@ private:
  * @endcode
  */
 ///@{
-
-/**
- * @brief a shortcut function to perform message formating to buffer.
- */
-template < typename Buffer,
-           typename Fmt_String,
-           typename... Args,
-           typename = std::enable_if_t<
-               std::is_base_of_v< fmt_compile_string, Fmt_String > > >
-auto format_to( write_to_ouput_wrapper_t< Buffer > out,
-                Fmt_String fs,
-                Args &&... args )
-{
-    return out.format_to( fs, std::forward< Args >( args )... );
-}
 
 /**
  * @brief a shortcut function to perform message formating to buffer.
