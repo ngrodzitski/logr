@@ -47,7 +47,7 @@ which are considered to be provided by package manager.
 
 One of the script in `build-scripts` folder can be used.
 
-Build with gcc 9.3 and run tests.
+Build with gcc 11 and run tests.
 
 ```
 ./build-scripts/gcc93_conan.sh --run-ctest
@@ -55,69 +55,60 @@ Build with gcc 9.3 and run tests.
 
 Or build it manually:
 ```bash
-mkdir build && cd build
+conan install -pr:a gcc-11 -s:h build_type=Release --build missing -of _build_release .
 
-# Install conan dependencies.
-conan install \
-    -s compiler=gcc \
-    -s compiler.version=9.3 \
-    -s compiler.libcxx=libstdc++11 \
-    -s build_type=Release \
-    --build missing \
-    ..
+# 'gcc-11' profile (example):
+#     ```
+#     [settings]
+#     arch=x86_64
+#     build_type=Release
+#     compiler=gcc
+#     compiler.cppstd=20
+#     compiler.libcxx=libstdc++11
+#     compiler.version=11
+#     os=Linux
+#
+#     [buildenv]
+#     CC=gcc-11
+#     CXX=g++-11
+#     ```
 
-# Assume you deafult compiler is GCC 9.3.
-# Otherwise set it explicitly:
-#     export CC=gcc-9
-#     export CPP=g++-9
-#     export AR=gcc-ar-9
-#     export CXX=g++-9
+# Next comman runs cmake in isolated environment
+# in which necessary conan variables are initialized,
+# which keeps acaller environment not polluted.
+( source ./_build_release/conanbuild.sh && cmake -B_build_release . -DCMAKE_TOOLCHAIN_FILE=_build_release/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release )
 
-cmake -DCMAKE_BUILD_TYPE=Release ..
-cmake --build . -j $(nproc)
-ctest -T test
-```
-
-### Build on linux with Conan dockers
-
-Using one of the dockers from [docker hub conanio](https://hub.docker.com/u/conanio):
-
-```bash
-docker run -ti --user=$(id -u):$(id -g) \
-           -v $(pwd):/sources \
-           -w /sources \
-           -e CONAN_USER_HOME=/sources/_conan \
-           conanio/gcc10 \
-           ./build-scripts/gcc_default.sh \
-               --run-ctest
+cmake --build _build_release
+ctest -T test --test-dir _build_release
 ```
 
 ### Build on windows with Conan
 
 Build with msvc16 (aka vs2019, aka vc142):
 
+```batch
+conan install . -pr:a vs2022 --build missing -of _build
+
+_build\conanbuild.bat
+cmake -B_build . -DCMAKE_TOOLCHAIN_FILE="_build/conan_toolchain.cmake" -DCMAKE_BUILD_TYPE=Release
+
+cmake --build _build
+ctest -T test --test-dir _build
 ```
-rd /s /q _msvc16_conan
-mkdir _msvc16_conan
-cd _msvc16_conan
 
-REM Precompiled log4cplus in conan-center seems to be broken
-REM so we force its build `-b log4cplus`.
-conan install -s compiler="Visual Studio" ^
-              -s compiler.version=16 ^
-              -s build_type=Release ^
-              -s compiler.runtime=MD ^
-              --build missing ^
-              -b log4cplus ^
-              ..
+Sample vs2022 conan-profile:
 
-cmake -G "Visual Studio 16 2019" ^
-      -DCMAKE_BUILD_TYPE=Release ^
-      ..
-
-cmake --build . -j 4 --config Release
-ctest -T test
+```ini
+[settings]
+arch=x86_64
+build_type=Release
+compiler=msvc
+compiler.cppstd=20
+compiler.runtime=static
+compiler.version=193
+os=Windows
 ```
+
 ## Build with Vcpkg
 
 To build tests, examples and benchmarks the following packages
@@ -193,7 +184,7 @@ The original idea behind the library came from
 can be integrated to RESTinio to track its internal events.
 That is pretty much the major idea around Logr,
 so `logr = LOGger from Restinio` to show gratitude to great library.
-And on the other hand it just 4 letters long which is good for namespaces.
+And on the other hand it is just 4 letters long which is good for namespaces.
 
 ## License
 
