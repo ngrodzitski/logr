@@ -93,7 +93,7 @@ struct format_string_definition_helper_t< wchar_t >
 } /* namespace details */
 
 template < typename CharT, typename... Args >
-using fmt_format_string = details::format_string_definition_helper_t<
+using fmt_format_string = typename details::format_string_definition_helper_t<
     CharT >::template format_string< Args... >;
 
 //
